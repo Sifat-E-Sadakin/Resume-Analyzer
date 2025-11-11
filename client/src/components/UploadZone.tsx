@@ -1,16 +1,21 @@
 import { useState } from "react";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Upload, FileText, X, Loader2 } from "lucide-react";
+import { Upload, FileText, X, Loader2, Briefcase } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { apiRequest, queryClient } from "@/lib/queryClient";
 import { useLocation } from "wouter";
+import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
+import { Label } from "@/components/ui/label";
 import uploadIllustration from "@assets/generated_images/Upload_document_illustration_ad0b923d.png";
 
 export default function UploadZone() {
   const [isDragging, setIsDragging] = useState(false);
   const [uploadedFile, setUploadedFile] = useState<File | null>(null);
   const [isAnalyzing, setIsAnalyzing] = useState(false);
+  const [jobDescription, setJobDescription] = useState("");
+  const [targetRole, setTargetRole] = useState("");
   const { toast } = useToast();
   const [, setLocation] = useLocation();
 
@@ -56,6 +61,14 @@ export default function UploadZone() {
     try {
       const formData = new FormData();
       formData.append("file", uploadedFile);
+      
+      // Add job description and target role if provided
+      if (jobDescription.trim()) {
+        formData.append("jobDescription", jobDescription.trim());
+      }
+      if (targetRole.trim()) {
+        formData.append("targetRole", targetRole.trim());
+      }
 
       const response = await fetch("/api/resumes/upload", {
         method: "POST",
@@ -73,7 +86,7 @@ export default function UploadZone() {
       
       toast({
         title: "Analysis complete!",
-        description: "Your resume has been analyzed successfully",
+        description: jobDescription ? "Your resume has been analyzed against the job description" : "Your resume has been analyzed successfully",
       });
 
       // Navigate to analysis page
@@ -149,7 +162,7 @@ export default function UploadZone() {
             </div>
           </div>
         ) : (
-          <div className="space-y-4">
+          <div className="space-y-6">
             <div className="flex items-center justify-center gap-4 p-4 bg-muted rounded-lg">
               <FileText className="w-8 h-8 text-primary" />
               <div className="flex-1 text-left">
@@ -167,6 +180,41 @@ export default function UploadZone() {
                 <X className="w-5 h-5" />
               </Button>
             </div>
+
+            <div className="space-y-4 text-left">
+              <div className="space-y-2">
+                <Label htmlFor="target-role" className="flex items-center gap-2">
+                  <Briefcase className="w-4 h-4" />
+                  Target Role (Optional)
+                </Label>
+                <Input
+                  id="target-role"
+                  placeholder="e.g., Senior Software Engineer"
+                  value={targetRole}
+                  onChange={(e) => setTargetRole(e.target.value)}
+                  data-testid="input-target-role"
+                />
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="job-description">
+                  Job Description (Optional)
+                </Label>
+                <Textarea
+                  id="job-description"
+                  placeholder="Paste the job description here for tailored analysis and resume improvements..."
+                  value={jobDescription}
+                  onChange={(e) => setJobDescription(e.target.value)}
+                  rows={6}
+                  className="resize-none"
+                  data-testid="textarea-job-description"
+                />
+                <p className="text-xs text-muted-foreground">
+                  Add a job description to get targeted recommendations and generate an improved resume
+                </p>
+              </div>
+            </div>
+
             <Button 
               size="lg" 
               className="w-full" 
@@ -180,7 +228,7 @@ export default function UploadZone() {
                   Analyzing...
                 </>
               ) : (
-                "Analyze Resume"
+                jobDescription ? "Analyze for This Job" : "Analyze Resume"
               )}
             </Button>
           </div>
