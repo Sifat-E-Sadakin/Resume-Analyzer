@@ -105,6 +105,8 @@ Respond with a JSON object matching this structure:
 
     const result = JSON.parse(response.choices[0].message.content || "{}");
     
+    console.log("OpenAI raw response:", JSON.stringify(result, null, 2));
+    
     // Ensure the result has all required fields with defaults
     return {
       overallScore: result.overallScore || 0,

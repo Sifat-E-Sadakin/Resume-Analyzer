@@ -3,7 +3,17 @@ import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import ScoreCard from "./ScoreCard";
-import { Award, FileText, Target, Zap, TrendingUp, AlertCircle, CheckCircle2, Download, Globe } from "lucide-react";
+import {
+  Award,
+  FileText,
+  Target,
+  Zap,
+  TrendingUp,
+  AlertCircle,
+  CheckCircle2,
+  Download,
+  Globe,
+} from "lucide-react";
 import { useLocation } from "wouter";
 import {
   Accordion,
@@ -61,14 +71,21 @@ export default function AnalysisDashboard() {
 
   const { analysis, resumeId, extractedData } = analysisData;
   const handleGeneratePortfolio = () => {
-    sessionStorage.setItem("portfolioData", JSON.stringify({ resumeId, extractedData }));
+    sessionStorage.setItem(
+      "portfolioData",
+      JSON.stringify({ resumeId, extractedData }),
+    );
     setLocation("/templates");
   };
+  console.log(analysis);
   return (
     <div className="max-w-7xl mx-auto p-6 space-y-8">
       <div className="flex flex-wrap items-center justify-between gap-4">
         <div>
-          <h1 className="text-3xl font-bold mb-2" data-testid="text-dashboard-heading">
+          <h1
+            className="text-3xl font-bold mb-2"
+            data-testid="text-dashboard-heading"
+          >
             Resume Analysis Results
           </h1>
           <p className="text-muted-foreground">
@@ -80,7 +97,10 @@ export default function AnalysisDashboard() {
             <Download className="mr-2 w-4 h-4" />
             Download Report
           </Button>
-          <Button onClick={handleGeneratePortfolio} data-testid="button-generate-portfolio">
+          <Button
+            onClick={handleGeneratePortfolio}
+            data-testid="button-generate-portfolio"
+          >
             <Globe className="mr-2 w-4 h-4" />
             Generate Portfolio
           </Button>
@@ -88,23 +108,52 @@ export default function AnalysisDashboard() {
       </div>
 
       <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
-        <ScoreCard title="Overall Score" score={analysis.overallScore || 0} icon={Award} description="Resume quality" />
-        <ScoreCard title="Content" score={analysis.scores?.content || 0} icon={FileText} description="Content quality" />
-        <ScoreCard title="Skills Match" score={analysis.scores?.skills || 0} icon={Target} description="Skills alignment" />
-        <ScoreCard title="Impact" score={analysis.scores?.impact || 0} icon={Zap} description="Impact & achievements" />
+        <ScoreCard
+          title="Overall Score"
+          score={analysis.overallScore || 0}
+          icon={Award}
+          description="Resume quality"
+        />
+        <ScoreCard
+          title="Content"
+          score={analysis.scores?.content || 0}
+          icon={FileText}
+          description="Content quality"
+        />
+        <ScoreCard
+          title="Skills Match"
+          score={analysis.scores?.skills || 0}
+          icon={Target}
+          description="Skills alignment"
+        />
+        <ScoreCard
+          title="Impact"
+          score={analysis.scores?.impact || 0}
+          icon={Zap}
+          description="Impact & achievements"
+        />
       </div>
 
       <Card className="p-6">
-        <h2 className="text-xl font-semibold mb-4 flex items-center gap-2" data-testid="text-skills-gap-heading">
+        <h2
+          className="text-xl font-semibold mb-4 flex items-center gap-2"
+          data-testid="text-skills-gap-heading"
+        >
           <TrendingUp className="w-5 h-5 text-primary" />
           Skills Gap Analysis
         </h2>
         <div className="space-y-4">
           <div>
-            <h3 className="text-sm font-medium text-muted-foreground mb-3">Your Skills</h3>
+            <h3 className="text-sm font-medium text-muted-foreground mb-3">
+              Your Skills
+            </h3>
             <div className="flex flex-wrap gap-2">
               {(analysis.skills?.present || []).map((skill, idx) => (
-                <Badge key={idx} variant="secondary" data-testid={`badge-skill-present-${idx}`}>
+                <Badge
+                  key={idx}
+                  variant="secondary"
+                  data-testid={`badge-skill-present-${idx}`}
+                >
                   <CheckCircle2 className="w-3 h-3 mr-1 text-chart-3" />
                   {skill}
                 </Badge>
@@ -112,10 +161,16 @@ export default function AnalysisDashboard() {
             </div>
           </div>
           <div>
-            <h3 className="text-sm font-medium text-muted-foreground mb-3">Recommended Skills</h3>
+            <h3 className="text-sm font-medium text-muted-foreground mb-3">
+              Recommended Skills
+            </h3>
             <div className="flex flex-wrap gap-2">
               {(analysis.skills?.missing || []).map((skill, idx) => (
-                <Badge key={idx} variant="outline" data-testid={`badge-skill-missing-${idx}`}>
+                <Badge
+                  key={idx}
+                  variant="outline"
+                  data-testid={`badge-skill-missing-${idx}`}
+                >
                   <TrendingUp className="w-3 h-3 mr-1 text-chart-4" />
                   {skill}
                 </Badge>
@@ -126,17 +181,33 @@ export default function AnalysisDashboard() {
       </Card>
 
       <div>
-        <h2 className="text-2xl font-semibold mb-4" data-testid="text-detailed-feedback-heading">
+        <h2
+          className="text-2xl font-semibold mb-4"
+          data-testid="text-detailed-feedback-heading"
+        >
           Detailed Feedback
         </h2>
         <Accordion type="single" collapsible className="space-y-4">
           {(analysis.feedback || []).map((item, idx) => (
-            <AccordionItem key={idx} value={`item-${idx}`} className="border rounded-lg px-6">
-              <AccordionTrigger className="hover:no-underline" data-testid={`accordion-trigger-${idx}`}>
+            <AccordionItem
+              key={idx}
+              value={`item-${idx}`}
+              className="border rounded-lg px-6"
+            >
+              <AccordionTrigger
+                className="hover:no-underline"
+                data-testid={`accordion-trigger-${idx}`}
+              >
                 <div className="flex items-center gap-4 text-left">
-                  <div className={`text-2xl font-bold ${
-                    item.score >= 80 ? 'text-chart-3' : item.score >= 60 ? 'text-chart-4' : 'text-destructive'
-                  }`}>
+                  <div
+                    className={`text-2xl font-bold ${
+                      item.score >= 80
+                        ? "text-chart-3"
+                        : item.score >= 60
+                          ? "text-chart-4"
+                          : "text-destructive"
+                    }`}
+                  >
                     {item.score}%
                   </div>
                   <span className="font-semibold">{item.section}</span>
