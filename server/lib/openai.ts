@@ -138,3 +138,128 @@ Respond with a JSON object matching this structure:
     throw new Error(`Resume analysis failed: ${error instanceof Error ? error.message : 'Unknown error'}`);
   }
 }
+
+interface JobTargetedAnalysisResult {
+  matchScore: number;
+  recommendedChanges: Array<{
+    category: string;
+    change: string;
+    reason: string;
+    priority: "high" | "medium" | "low";
+  }>;
+  missingSkills: string[];
+  matchingSkills: string[];
+  keyRequirements: string[];
+}
+
+export async function analyzeResumeWithJob(
+  resumeText: string,
+  jobDescription: string,
+  targetRole?: string
+): Promise<JobTargetedAnalysisResult> {
+  try {
+    console.log("Starting job-targeted resume analysis with OpenAI...");
+    
+    const response = await openai.chat.completions.create({
+      model: "gpt-4o",
+      messages: [
+        {
+          role: "system",
+          content: `You are an expert resume analyzer and career coach. Analyze the resume against the specific job description and provide:
+
+1. Match score (0-100) indicating how well the resume aligns with the job requirements
+2. Recommended changes to better match the job requirements (categorized and prioritized)
+3. Skills analysis (missing skills from job description, matching skills)
+4. Key requirements from the job description that the resume should address
+
+Be specific and actionable. Focus on helping the candidate tailor their resume to this specific role.
+
+Respond with a JSON object matching this structure:
+{
+  "matchScore": number,
+  "recommendedChanges": [
+    {
+      "category": "skills" | "experience" | "achievements" | "keywords" | "format",
+      "change": string (specific change to make),
+      "reason": string (why this change matters for this job),
+      "priority": "high" | "medium" | "low"
+    }
+  ],
+  "missingSkills": [string] (skills in job description but not in resume),
+  "matchingSkills": [string] (skills in both resume and job description),
+  "keyRequirements": [string] (critical requirements from the job description)
+}`
+        },
+        {
+          role: "user",
+          content: `Job Description:\n${jobDescription}\n\n${targetRole ? `Target Role: ${targetRole}\n\n` : ''}Resume:\n${resumeText}`
+        }
+      ],
+      response_format: { type: "json_object" },
+      max_completion_tokens: 4096,
+    });
+
+    const result = JSON.parse(response.choices[0].message.content || "{}");
+    
+    console.log("Job-targeted analysis completed");
+    
+    return {
+      matchScore: result.matchScore || 0,
+      recommendedChanges: result.recommendedChanges || [],
+      missingSkills: result.missingSkills || [],
+      matchingSkills: result.matchingSkills || [],
+      keyRequirements: result.keyRequirements || [],
+    };
+  } catch (error) {
+    throw new Error(`Job-targeted analysis failed: ${error instanceof Error ? error.message : 'Unknown error'}`);
+  }
+}
+
+export async function generateImprovedResume(
+  resumeText: string,
+  jobDescription: string,
+  recommendedChanges: Array<{ category: string; change: string; reason: string; priority: string }>,
+  targetRole?: string
+): Promise<string> {
+  try {
+    console.log("Generating improved resume with OpenAI...");
+    
+    const changesText = recommendedChanges
+      .map((change, idx) => `${idx + 1}. [${change.priority.toUpperCase()}] ${change.change} - ${change.reason}`)
+      .join('\n');
+    
+    const response = await openai.chat.completions.create({
+      model: "gpt-4o",
+      messages: [
+        {
+          role: "system",
+          content: `You are an expert resume writer. Generate an improved version of the resume that incorporates the recommended changes while maintaining the candidate's authentic voice and actual experience.
+
+IMPORTANT INSTRUCTIONS:
+- Only make changes that are truthful and based on the candidate's actual experience
+- Reframe and highlight existing accomplishments to align with the job requirements
+- Add relevant keywords from the job description naturally
+- Improve impact statements with quantifiable metrics where the original resume shows results
+- Maintain professional formatting and structure
+- Do NOT fabricate experience, skills, or achievements
+- Keep the resume length appropriate (1-2 pages)
+
+Output the complete improved resume text in a professional format.`
+        },
+        {
+          role: "user",
+          content: `Original Resume:\n${resumeText}\n\nJob Description:\n${jobDescription}\n\n${targetRole ? `Target Role: ${targetRole}\n\n` : ''}Recommended Changes:\n${changesText}\n\nPlease generate the improved resume incorporating these changes while keeping all information truthful and based on the candidate's actual experience.`
+        }
+      ],
+      max_completion_tokens: 8192,
+    });
+
+    const improvedResume = response.choices[0].message.content || resumeText;
+    
+    console.log("Improved resume generated successfully");
+    
+    return improvedResume;
+  } catch (error) {
+    throw new Error(`Resume generation failed: ${error instanceof Error ? error.message : 'Unknown error'}`);
+  }
+}
