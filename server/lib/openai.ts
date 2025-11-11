@@ -1,6 +1,6 @@
 import OpenAI from "openai";
 
-// the newest OpenAI model is "gpt-5" which was released August 7, 2025. do not change this unless explicitly requested by the user
+// Using gpt-4o which is OpenAI's latest and most capable model
 const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
 
 interface ResumeAnalysisResult {
@@ -47,8 +47,11 @@ interface ResumeAnalysisResult {
 
 export async function analyzeResume(resumeText: string): Promise<ResumeAnalysisResult> {
   try {
+    console.log("Starting resume analysis with OpenAI...");
+    console.log("Resume text length:", resumeText.length);
+    
     const response = await openai.chat.completions.create({
-      model: "gpt-5",
+      model: "gpt-4o",
       messages: [
         {
           role: "system",
@@ -103,9 +106,13 @@ Respond with a JSON object matching this structure:
       max_completion_tokens: 4096,
     });
 
+    console.log("OpenAI API response received");
+    console.log("Response status:", response.choices?.[0]?.finish_reason);
+    
     const result = JSON.parse(response.choices[0].message.content || "{}");
     
     console.log("OpenAI raw response:", JSON.stringify(result, null, 2));
+    console.log("Response has data:", Object.keys(result).length > 0);
     
     // Ensure the result has all required fields with defaults
     return {
