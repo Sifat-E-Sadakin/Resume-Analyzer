@@ -13,6 +13,9 @@ import {
   CheckCircle2,
   Download,
   Globe,
+  Briefcase,
+  Sparkles,
+  Loader2,
 } from "lucide-react";
 import { useLocation } from "wouter";
 import {
@@ -21,6 +24,7 @@ import {
   AccordionItem,
   AccordionTrigger,
 } from "@/components/ui/accordion";
+import { useToast } from "@/hooks/use-toast";
 
 interface AnalysisData {
   resumeId: string;
@@ -45,11 +49,26 @@ interface AnalysisData {
     };
   };
   extractedData: any;
+  jobApplication?: {
+    id: string;
+    targetRole?: string;
+    jobDescription: string;
+    matchScore: number;
+    recommendedChanges: {
+      keywordOptimization: string[];
+      experienceAlignment: string[];
+      skillsHighlight: string[];
+      formatSuggestions: string[];
+    };
+    improvedResumeContent?: string;
+  };
 }
 
 export default function AnalysisDashboard() {
   const [analysisData, setAnalysisData] = useState<AnalysisData | null>(null);
+  const [isGenerating, setIsGenerating] = useState(false);
   const [, setLocation] = useLocation();
+  const { toast } = useToast();
 
   useEffect(() => {
     const storedData = sessionStorage.getItem("currentAnalysis");
@@ -89,6 +108,54 @@ export default function AnalysisDashboard() {
     );
     setLocation("/templates");
   };
+
+  const handleGenerateImprovedResume = async () => {
+    if (!analysisData?.jobApplication) return;
+
+    setIsGenerating(true);
+    try {
+      const response = await fetch(`/api/resumes/${resumeId}/generate-improved`, {
+        method: "POST",
+      });
+
+      if (!response.ok) {
+        throw new Error("Failed to generate improved resume");
+      }
+
+      const data = await response.json();
+      
+      toast({
+        title: "Success!",
+        description: "Your improved resume has been generated",
+      });
+
+      // Update analysis data with improved resume content
+      setAnalysisData(prev => prev ? {
+        ...prev,
+        jobApplication: prev.jobApplication ? {
+          ...prev.jobApplication,
+          improvedResumeContent: data.improvedResumeContent,
+        } : undefined,
+      } : null);
+
+      // Navigate to improved resume page
+      sessionStorage.setItem("improvedResume", JSON.stringify({
+        resumeId,
+        content: data.improvedResumeContent,
+        targetRole: analysisData.jobApplication.targetRole,
+      }));
+      setLocation("/improved-resume");
+    } catch (error) {
+      toast({
+        title: "Generation failed",
+        description: error instanceof Error ? error.message : "Failed to generate improved resume",
+        variant: "destructive",
+      });
+    } finally {
+      setIsGenerating(false);
+    }
+  };
+
   return (
     <div className="max-w-7xl mx-auto p-6 space-y-8">
       <div className="flex flex-wrap items-center justify-between gap-4">
@@ -108,6 +175,31 @@ export default function AnalysisDashboard() {
             <Download className="mr-2 w-4 h-4" />
             Download Report
           </Button>
+          {analysisData.jobApplication && (
+            <Button
+              onClick={handleGenerateImprovedResume}
+              disabled={isGenerating || !!analysisData.jobApplication.improvedResumeContent}
+              variant="default"
+              data-testid="button-generate-improved"
+            >
+              {isGenerating ? (
+                <>
+                  <Loader2 className="mr-2 w-4 h-4 animate-spin" />
+                  Generating...
+                </>
+              ) : analysisData.jobApplication.improvedResumeContent ? (
+                <>
+                  <CheckCircle2 className="mr-2 w-4 h-4" />
+                  View Improved Resume
+                </>
+              ) : (
+                <>
+                  <Sparkles className="mr-2 w-4 h-4" />
+                  Generate Improved Resume
+                </>
+              )}
+            </Button>
+          )}
           <Button
             onClick={handleGeneratePortfolio}
             data-testid="button-generate-portfolio"
@@ -144,6 +236,94 @@ export default function AnalysisDashboard() {
           description="Impact & achievements"
         />
       </div>
+
+      {analysisData.jobApplication && (
+        <Card className="p-6 border-primary/50">
+          <div className="flex flex-wrap items-center justify-between gap-4 mb-6">
+            <h2 className="text-xl font-semibold flex items-center gap-2" data-testid="text-job-match-heading">
+              <Briefcase className="w-5 h-5 text-primary" />
+              Job Match Analysis
+              {analysisData.jobApplication.targetRole && (
+                <Badge variant="outline" className="ml-2">
+                  {analysisData.jobApplication.targetRole}
+                </Badge>
+              )}
+            </h2>
+            <div className="text-3xl font-bold text-primary" data-testid="text-match-score">
+              {analysisData.jobApplication.matchScore}%
+            </div>
+          </div>
+
+          <div className="space-y-6">
+            {analysisData.jobApplication.recommendedChanges.keywordOptimization.length > 0 && (
+              <div className="space-y-3">
+                <h3 className="font-medium flex items-center gap-2">
+                  <Target className="w-4 h-4" />
+                  Keyword Optimization
+                </h3>
+                <div className="bg-muted/50 rounded-lg p-4 space-y-2">
+                  {analysisData.jobApplication.recommendedChanges.keywordOptimization.map((item, idx) => (
+                    <div key={idx} className="flex items-start gap-2 text-sm">
+                      <Sparkles className="w-4 h-4 text-primary mt-0.5 flex-shrink-0" />
+                      <span>{item}</span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {analysisData.jobApplication.recommendedChanges.experienceAlignment.length > 0 && (
+              <div className="space-y-3">
+                <h3 className="font-medium flex items-center gap-2">
+                  <Award className="w-4 h-4" />
+                  Experience Alignment
+                </h3>
+                <div className="bg-muted/50 rounded-lg p-4 space-y-2">
+                  {analysisData.jobApplication.recommendedChanges.experienceAlignment.map((item, idx) => (
+                    <div key={idx} className="flex items-start gap-2 text-sm">
+                      <Sparkles className="w-4 h-4 text-primary mt-0.5 flex-shrink-0" />
+                      <span>{item}</span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {analysisData.jobApplication.recommendedChanges.skillsHighlight.length > 0 && (
+              <div className="space-y-3">
+                <h3 className="font-medium flex items-center gap-2">
+                  <TrendingUp className="w-4 h-4" />
+                  Skills to Highlight
+                </h3>
+                <div className="flex flex-wrap gap-2">
+                  {analysisData.jobApplication.recommendedChanges.skillsHighlight.map((skill, idx) => (
+                    <Badge key={idx} variant="secondary" data-testid={`badge-recommended-skill-${idx}`}>
+                      {skill}
+                    </Badge>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {analysisData.jobApplication.recommendedChanges.formatSuggestions.length > 0 && (
+              <div className="space-y-3">
+                <h3 className="font-medium flex items-center gap-2">
+                  <FileText className="w-4 h-4" />
+                  Format Suggestions
+                </h3>
+                <div className="bg-muted/50 rounded-lg p-4 space-y-2">
+                  {analysisData.jobApplication.recommendedChanges.formatSuggestions.map((item, idx) => (
+                    <div key={idx} className="flex items-start gap-2 text-sm">
+                      <Sparkles className="w-4 h-4 text-primary mt-0.5 flex-shrink-0" />
+                      <span>{item}</span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+          </div>
+        </Card>
+      )}
 
       <Card className="p-6">
         <h2
