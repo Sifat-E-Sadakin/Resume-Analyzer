@@ -7,6 +7,7 @@ import Home from "@/pages/Home";
 import Upload from "@/pages/Upload";
 import Analysis from "@/pages/Analysis";
 import Templates from "@/pages/Templates";
+import ImprovedResume from "@/pages/ImprovedResume";
 import NotFound from "@/pages/not-found";
 
 function Router() {
@@ -16,6 +17,7 @@ function Router() {
       <Route path="/upload" component={Upload} />
       <Route path="/analysis" component={Analysis} />
       <Route path="/templates" component={Templates} />
+      <Route path="/improved-resume" component={ImprovedResume} />
       <Route component={NotFound} />
     </Switch>
   );

@@ -91,9 +91,9 @@ export class MemStorage implements IStorage {
       id,
       resumeId: insertAnalysis.resumeId,
       overallScore: insertAnalysis.overallScore,
-      scores: insertAnalysis.scores as any,
-      feedback: insertAnalysis.feedback as any,
-      skills: insertAnalysis.skills as any,
+      scores: insertAnalysis.scores,
+      feedback: insertAnalysis.feedback,
+      skills: insertAnalysis.skills,
       createdAt: new Date(),
     };
     this.analyses.set(id, analysis);
@@ -116,7 +116,7 @@ export class MemStorage implements IStorage {
       id,
       resumeId: insertPortfolio.resumeId,
       templateId: insertPortfolio.templateId,
-      data: insertPortfolio.data as any,
+      data: insertPortfolio.data,
       createdAt: new Date(),
     };
     this.portfolios.set(id, portfolio);
@@ -138,12 +138,12 @@ export class MemStorage implements IStorage {
     const jobApplication: JobApplication = {
       id,
       resumeId: insertJobApplication.resumeId,
-      analysisId: insertJobApplication.analysisId || null,
+      analysisId: insertJobApplication.analysisId ?? null,
       jobDescription: insertJobApplication.jobDescription,
-      targetRole: insertJobApplication.targetRole || null,
-      improvedResumeContent: insertJobApplication.improvedResumeContent || null,
-      recommendedChanges: insertJobApplication.recommendedChanges as any || null,
-      matchScore: insertJobApplication.matchScore || null,
+      targetRole: insertJobApplication.targetRole ?? null,
+      improvedResumeContent: insertJobApplication.improvedResumeContent ?? null,
+      recommendedChanges: insertJobApplication.recommendedChanges ?? null,
+      matchScore: insertJobApplication.matchScore ?? null,
       createdAt: new Date(),
     };
     this.jobApplications.set(id, jobApplication);

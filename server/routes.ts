@@ -56,7 +56,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
           analysisId: analysis.id,
           jobDescription,
           targetRole: targetRole || null,
-          matchScore: String(jobTargetedAnalysis.matchScore),
+          matchScore: jobTargetedAnalysis.matchScore,
           recommendedChanges: jobTargetedAnalysis.recommendedChanges,
           improvedResumeContent: null,
         });
@@ -65,7 +65,6 @@ export async function registerRoutes(app: Express): Promise<Server> {
       res.json({
         resumeId: resume.id,
         analysisId: analysis.id,
-        jobApplicationId: jobApplication?.id,
         analysis: {
           overallScore: analysisResult.overallScore,
           scores: analysisResult.scores,
@@ -73,7 +72,14 @@ export async function registerRoutes(app: Express): Promise<Server> {
           skills: analysisResult.skills,
         },
         extractedData: analysisResult.extractedData,
-        jobTargetedAnalysis,
+        jobApplication: jobApplication ? {
+          id: jobApplication.id,
+          targetRole: jobApplication.targetRole,
+          jobDescription: jobApplication.jobDescription,
+          matchScore: jobApplication.matchScore,
+          recommendedChanges: jobApplication.recommendedChanges,
+          improvedResumeContent: jobApplication.improvedResumeContent,
+        } : undefined,
       });
     } catch (error) {
       console.error("Resume upload error:", error);
@@ -169,7 +175,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       const improvedContent = await generateImprovedResume(
         resume.content,
         jobApplication.jobDescription,
-        jobApplication.recommendedChanges as any,
+        jobApplication.recommendedChanges,
         jobApplication.targetRole || undefined
       );
 

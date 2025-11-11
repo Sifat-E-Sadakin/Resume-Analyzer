@@ -141,15 +141,14 @@ Respond with a JSON object matching this structure:
 
 interface JobTargetedAnalysisResult {
   matchScore: number;
-  recommendedChanges: Array<{
-    category: string;
-    change: string;
-    reason: string;
-    priority: "high" | "medium" | "low";
-  }>;
+  recommendedChanges: {
+    keywordOptimization: string[];
+    experienceAlignment: string[];
+    skillsHighlight: string[];
+    formatSuggestions: string[];
+  };
   missingSkills: string[];
   matchingSkills: string[];
-  keyRequirements: string[];
 }
 
 export async function analyzeResumeWithJob(
@@ -168,26 +167,26 @@ export async function analyzeResumeWithJob(
           content: `You are an expert resume analyzer and career coach. Analyze the resume against the specific job description and provide:
 
 1. Match score (0-100) indicating how well the resume aligns with the job requirements
-2. Recommended changes to better match the job requirements (categorized and prioritized)
-3. Skills analysis (missing skills from job description, matching skills)
-4. Key requirements from the job description that the resume should address
+2. Specific recommendations categorized into:
+   - Keyword Optimization: Keywords and phrases from the job description to add
+   - Experience Alignment: How to reframe experience to better match the role
+   - Skills to Highlight: Which skills to emphasize or add based on job requirements
+   - Format Suggestions: Structural improvements to better showcase relevant qualifications
+3. Skills gap analysis
 
 Be specific and actionable. Focus on helping the candidate tailor their resume to this specific role.
 
 Respond with a JSON object matching this structure:
 {
-  "matchScore": number,
-  "recommendedChanges": [
-    {
-      "category": "skills" | "experience" | "achievements" | "keywords" | "format",
-      "change": string (specific change to make),
-      "reason": string (why this change matters for this job),
-      "priority": "high" | "medium" | "low"
-    }
-  ],
+  "matchScore": number (0-100),
+  "recommendedChanges": {
+    "keywordOptimization": [string] (keywords and phrases to include),
+    "experienceAlignment": [string] (how to reframe or emphasize experience),
+    "skillsHighlight": [string] (skills to prominently feature),
+    "formatSuggestions": [string] (structural improvements)
+  },
   "missingSkills": [string] (skills in job description but not in resume),
-  "matchingSkills": [string] (skills in both resume and job description),
-  "keyRequirements": [string] (critical requirements from the job description)
+  "matchingSkills": [string] (skills in both resume and job description)
 }`
         },
         {
@@ -205,10 +204,14 @@ Respond with a JSON object matching this structure:
     
     return {
       matchScore: result.matchScore || 0,
-      recommendedChanges: result.recommendedChanges || [],
+      recommendedChanges: {
+        keywordOptimization: result.recommendedChanges?.keywordOptimization || [],
+        experienceAlignment: result.recommendedChanges?.experienceAlignment || [],
+        skillsHighlight: result.recommendedChanges?.skillsHighlight || [],
+        formatSuggestions: result.recommendedChanges?.formatSuggestions || [],
+      },
       missingSkills: result.missingSkills || [],
       matchingSkills: result.matchingSkills || [],
-      keyRequirements: result.keyRequirements || [],
     };
   } catch (error) {
     throw new Error(`Job-targeted analysis failed: ${error instanceof Error ? error.message : 'Unknown error'}`);
@@ -218,15 +221,30 @@ Respond with a JSON object matching this structure:
 export async function generateImprovedResume(
   resumeText: string,
   jobDescription: string,
-  recommendedChanges: Array<{ category: string; change: string; reason: string; priority: string }>,
+  recommendedChanges: {
+    keywordOptimization: string[];
+    experienceAlignment: string[];
+    skillsHighlight: string[];
+    formatSuggestions: string[];
+  },
   targetRole?: string
 ): Promise<string> {
   try {
     console.log("Generating improved resume with OpenAI...");
     
-    const changesText = recommendedChanges
-      .map((change, idx) => `${idx + 1}. [${change.priority.toUpperCase()}] ${change.change} - ${change.reason}`)
-      .join('\n');
+    const changesText = [
+      'Keyword Optimization:',
+      ...recommendedChanges.keywordOptimization.map(item => `- ${item}`),
+      '',
+      'Experience Alignment:',
+      ...recommendedChanges.experienceAlignment.map(item => `- ${item}`),
+      '',
+      'Skills to Highlight:',
+      ...recommendedChanges.skillsHighlight.map(item => `- ${item}`),
+      '',
+      'Format Suggestions:',
+      ...recommendedChanges.formatSuggestions.map(item => `- ${item}`),
+    ].join('\n');
     
     const response = await openai.chat.completions.create({
       model: "gpt-4o",

@@ -55,13 +55,13 @@ export const jobApplications = pgTable("job_applications", {
   jobDescription: text("job_description").notNull(),
   targetRole: text("target_role"),
   improvedResumeContent: text("improved_resume_content"),
-  recommendedChanges: jsonb("recommended_changes").$type<Array<{
-    category: string;
-    change: string;
-    reason: string;
-    priority: "high" | "medium" | "low";
-  }>>(),
-  matchScore: text("match_score"),
+  recommendedChanges: jsonb("recommended_changes").$type<{
+    keywordOptimization: string[];
+    experienceAlignment: string[];
+    skillsHighlight: string[];
+    formatSuggestions: string[];
+  }>(),
+  matchScore: jsonb("match_score").$type<number>(),
   createdAt: timestamp("created_at").defaultNow().notNull(),
 });
 
