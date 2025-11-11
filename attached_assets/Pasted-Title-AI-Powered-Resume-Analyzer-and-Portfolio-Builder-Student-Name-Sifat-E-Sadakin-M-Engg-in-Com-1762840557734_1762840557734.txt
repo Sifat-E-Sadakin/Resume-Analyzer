@@ -1,0 +1,47 @@
+Title: AI-Powered Resume Analyzer and Portfolio Builder
+Student Name: Sifat-E-Sadakin
+M.Engg. in Computer Science & Engineering, Brac University
+1. Project Overview
+This project aims to develop a web-based system that leverages AI to analyze user-uploaded
+resumes and automatically generate a personalized, professional portfolio website. The system
+will evaluate resume content using modern Natural Language Processing (NLP) techniques,
+provide tailored improvement suggestions, and output a deployable Next.js-based portfolio site
+based on the candidate's profile.
+2. Problem Statement
+Many graduates and professionals struggle to understand the weaknesses in their resumes and
+often lack the technical skill to build a polished online presence. Current tools offer limited
+feedback and usually lack personalization. There is a need for an intelligent system that
+provides:
+- AI-driven resume analysis and suggestions
+- Automatic generation of portfolio websites
+- Career insights and skill gap analysis
+3. Objectives
+- Develop an AI module that parses and evaluates resumes.
+- Provide improvement feedback on tone, content, and job-fit.
+- Match resume content with job descriptions to highlight gaps.
+- Generate customizable portfolio websites with deploy-ready code.
+- Enable one-click deployment to GitHub Pages or Vercel.
+4. Novelty & Justification
+- AI-Powered Analysis: Uses GPT-based models to give contextual resume suggestions far
+beyond traditional keyword-based tools.
+- Automated Portfolio Generation: Transforms resumes into styled, mobile-responsive personal
+websites with no coding required.
+- Career Matching: Compares resumes with job listings using semantic similarity and provides
+upskilling recommendations.
+- Research Potential: Explore performance comparisons of NLP models (e.g., GPT vs TF-IDF)
+in resume-job matching tasks.
+5. Technology Stack
+- Frontend: Next.js, Tailwind CSS, React
+- Backend: Node.js, Express.js, MongoDB
+
+- AI/NLP: OpenAI GPT API, spaCy/BERT (for fallback/local)
+- Deployment: Firebase, Vercel, GitHub Actions
+6. Deliverables
+- Full-stack web application
+- Resume parsing + analysis module
+- Portfolio generation engine with customizable templates
+- Research report with evaluation of parsing accuracy and user satisfaction
+7. Expected Outcome
+A deployable tool that improves the job-seeking process by combining AI-powered analysis with
+personal branding automation — valuable for both academic research and real-world
+application.
