@@ -6,7 +6,9 @@ import {
   type Analysis,
   type InsertAnalysis,
   type Portfolio,
-  type InsertPortfolio
+  type InsertPortfolio,
+  type JobApplication,
+  type InsertJobApplication
 } from "@shared/schema";
 import { randomUUID } from "crypto";
 
@@ -28,6 +30,12 @@ export interface IStorage {
   createPortfolio(portfolio: InsertPortfolio): Promise<Portfolio>;
   getPortfolio(id: string): Promise<Portfolio | undefined>;
   getPortfolioByResumeId(resumeId: string): Promise<Portfolio | undefined>;
+  
+  // Job application operations
+  createJobApplication(jobApplication: InsertJobApplication): Promise<JobApplication>;
+  getJobApplication(id: string): Promise<JobApplication | undefined>;
+  getJobApplicationByResumeId(resumeId: string): Promise<JobApplication | undefined>;
+  updateJobApplication(id: string, updates: Partial<InsertJobApplication>): Promise<JobApplication | undefined>;
 }
 
 export class MemStorage implements IStorage {
@@ -35,12 +43,14 @@ export class MemStorage implements IStorage {
   private resumes: Map<string, Resume>;
   private analyses: Map<string, Analysis>;
   private portfolios: Map<string, Portfolio>;
+  private jobApplications: Map<string, JobApplication>;
 
   constructor() {
     this.users = new Map();
     this.resumes = new Map();
     this.analyses = new Map();
     this.portfolios = new Map();
+    this.jobApplications = new Map();
   }
 
   async getUser(id: string): Promise<User | undefined> {
@@ -121,6 +131,48 @@ export class MemStorage implements IStorage {
     return Array.from(this.portfolios.values()).find(
       (portfolio) => portfolio.resumeId === resumeId,
     );
+  }
+
+  async createJobApplication(insertJobApplication: InsertJobApplication): Promise<JobApplication> {
+    const id = randomUUID();
+    const jobApplication: JobApplication = {
+      id,
+      resumeId: insertJobApplication.resumeId,
+      analysisId: insertJobApplication.analysisId || null,
+      jobDescription: insertJobApplication.jobDescription,
+      targetRole: insertJobApplication.targetRole || null,
+      improvedResumeContent: insertJobApplication.improvedResumeContent || null,
+      recommendedChanges: insertJobApplication.recommendedChanges as any || null,
+      matchScore: insertJobApplication.matchScore || null,
+      createdAt: new Date(),
+    };
+    this.jobApplications.set(id, jobApplication);
+    return jobApplication;
+  }
+
+  async getJobApplication(id: string): Promise<JobApplication | undefined> {
+    return this.jobApplications.get(id);
+  }
+
+  async getJobApplicationByResumeId(resumeId: string): Promise<JobApplication | undefined> {
+    return Array.from(this.jobApplications.values()).find(
+      (jobApp) => jobApp.resumeId === resumeId,
+    );
+  }
+
+  async updateJobApplication(id: string, updates: Partial<InsertJobApplication>): Promise<JobApplication | undefined> {
+    const existing = this.jobApplications.get(id);
+    if (!existing) return undefined;
+
+    const updated: JobApplication = {
+      ...existing,
+      ...updates,
+      id,
+      createdAt: existing.createdAt,
+    } as JobApplication;
+
+    this.jobApplications.set(id, updated);
+    return updated;
   }
 }
 
