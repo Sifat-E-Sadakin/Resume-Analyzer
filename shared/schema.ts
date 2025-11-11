@@ -48,6 +48,23 @@ export const analyses = pgTable("analyses", {
   createdAt: timestamp("created_at").defaultNow().notNull(),
 });
 
+export const jobApplications = pgTable("job_applications", {
+  id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
+  resumeId: varchar("resume_id").notNull().references(() => resumes.id),
+  analysisId: varchar("analysis_id").references(() => analyses.id),
+  jobDescription: text("job_description").notNull(),
+  targetRole: text("target_role"),
+  improvedResumeContent: text("improved_resume_content"),
+  recommendedChanges: jsonb("recommended_changes").$type<Array<{
+    category: string;
+    change: string;
+    reason: string;
+    priority: "high" | "medium" | "low";
+  }>>(),
+  matchScore: text("match_score"),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+});
+
 export const portfolios = pgTable("portfolios", {
   id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
   resumeId: varchar("resume_id").notNull().references(() => resumes.id),
@@ -92,9 +109,16 @@ export const insertPortfolioSchema = createInsertSchema(portfolios).omit({
   createdAt: true,
 });
 
+export const insertJobApplicationSchema = createInsertSchema(jobApplications).omit({
+  id: true,
+  createdAt: true,
+});
+
 export type Resume = typeof resumes.$inferSelect;
 export type InsertResume = z.infer<typeof insertResumeSchema>;
 export type Analysis = typeof analyses.$inferSelect;
 export type InsertAnalysis = z.infer<typeof insertAnalysisSchema>;
 export type Portfolio = typeof portfolios.$inferSelect;
 export type InsertPortfolio = z.infer<typeof insertPortfolioSchema>;
+export type JobApplication = typeof jobApplications.$inferSelect;
+export type InsertJobApplication = z.infer<typeof insertJobApplicationSchema>;
