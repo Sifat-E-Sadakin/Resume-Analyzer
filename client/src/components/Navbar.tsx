@@ -10,13 +10,11 @@ export default function Navbar() {
     <nav className="sticky top-0 z-50 bg-background/80 backdrop-blur-lg border-b">
       <div className="max-w-7xl mx-auto px-6">
         <div className="flex items-center justify-between h-16">
-          <Link href="/">
-            <a className="flex items-center gap-2 font-bold text-lg hover-elevate rounded-lg px-2 py-1 -ml-2" data-testid="link-home">
-              <div className="w-8 h-8 bg-gradient-to-br from-primary to-chart-2 rounded-lg flex items-center justify-center">
-                <Sparkles className="w-5 h-5 text-primary-foreground" />
-              </div>
-              Resume Analyzer
-            </a>
+          <Link href="/" className="flex items-center gap-2 font-bold text-lg hover-elevate rounded-lg px-2 py-1 -ml-2" data-testid="link-home">
+            <div className="w-8 h-8 bg-gradient-to-br from-primary to-chart-2 rounded-lg flex items-center justify-center">
+              <Sparkles className="w-5 h-5 text-primary-foreground" />
+            </div>
+            Resume Analyzer
           </Link>
           
           <div className="hidden md:flex items-center gap-6">
@@ -29,9 +27,9 @@ export default function Navbar() {
             <a href="#templates" className="text-sm font-medium hover:text-primary transition-colors">
               Templates
             </a>
-            <Link href="/upload">
-              <Button data-testid="button-get-started">Get Started</Button>
-            </Link>
+            <Button asChild data-testid="button-get-started">
+              <Link href="/upload">Get Started</Link>
+            </Button>
           </div>
 
           <Button
@@ -56,11 +54,9 @@ export default function Navbar() {
             <a href="#templates" className="block py-2 text-sm font-medium hover:text-primary transition-colors">
               Templates
             </a>
-            <Link href="/upload">
-              <Button className="w-full" data-testid="button-mobile-get-started">
-                Get Started
-              </Button>
-            </Link>
+            <Button asChild className="w-full" data-testid="button-mobile-get-started">
+              <Link href="/upload">Get Started</Link>
+            </Button>
           </div>
         )}
       </div>

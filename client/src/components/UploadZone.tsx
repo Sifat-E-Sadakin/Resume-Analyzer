@@ -1,12 +1,18 @@
 import { useState } from "react";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Upload, FileText, X } from "lucide-react";
+import { Upload, FileText, X, Loader2 } from "lucide-react";
+import { useToast } from "@/hooks/use-toast";
+import { apiRequest, queryClient } from "@/lib/queryClient";
+import { useLocation } from "wouter";
 import uploadIllustration from "@assets/generated_images/Upload_document_illustration_ad0b923d.png";
 
 export default function UploadZone() {
   const [isDragging, setIsDragging] = useState(false);
   const [uploadedFile, setUploadedFile] = useState<File | null>(null);
+  const [isAnalyzing, setIsAnalyzing] = useState(false);
+  const { toast } = useToast();
+  const [, setLocation] = useLocation();
 
   const handleDragOver = (e: React.DragEvent) => {
     e.preventDefault();
@@ -23,7 +29,12 @@ export default function UploadZone() {
     const file = e.dataTransfer.files[0];
     if (file && (file.type === "application/pdf" || file.type === "application/vnd.openxmlformats-officedocument.wordprocessingml.document")) {
       setUploadedFile(file);
-      console.log("File uploaded:", file.name);
+    } else {
+      toast({
+        title: "Invalid file type",
+        description: "Please upload a PDF or DOCX file",
+        variant: "destructive",
+      });
     }
   };
 
@@ -31,13 +42,51 @@ export default function UploadZone() {
     const file = e.target.files?.[0];
     if (file) {
       setUploadedFile(file);
-      console.log("File selected:", file.name);
     }
   };
 
   const removeFile = () => {
     setUploadedFile(null);
-    console.log("File removed");
+  };
+
+  const handleAnalyze = async () => {
+    if (!uploadedFile) return;
+
+    setIsAnalyzing(true);
+    try {
+      const formData = new FormData();
+      formData.append("file", uploadedFile);
+
+      const response = await fetch("/api/resumes/upload", {
+        method: "POST",
+        body: formData,
+      });
+
+      if (!response.ok) {
+        throw new Error("Upload failed");
+      }
+
+      const data = await response.json();
+      
+      // Store analysis data for the analysis page
+      sessionStorage.setItem("currentAnalysis", JSON.stringify(data));
+      
+      toast({
+        title: "Analysis complete!",
+        description: "Your resume has been analyzed successfully",
+      });
+
+      // Navigate to analysis page
+      setLocation("/analysis");
+    } catch (error) {
+      toast({
+        title: "Analysis failed",
+        description: error instanceof Error ? error.message : "Failed to analyze resume",
+        variant: "destructive",
+      });
+    } finally {
+      setIsAnalyzing(false);
+    }
   };
 
   return (
@@ -118,8 +167,21 @@ export default function UploadZone() {
                 <X className="w-5 h-5" />
               </Button>
             </div>
-            <Button size="lg" className="w-full" data-testid="button-analyze">
-              Analyze Resume
+            <Button 
+              size="lg" 
+              className="w-full" 
+              onClick={handleAnalyze}
+              disabled={isAnalyzing}
+              data-testid="button-analyze"
+            >
+              {isAnalyzing ? (
+                <>
+                  <Loader2 className="mr-2 w-5 h-5 animate-spin" />
+                  Analyzing...
+                </>
+              ) : (
+                "Analyze Resume"
+              )}
             </Button>
           </div>
         )}

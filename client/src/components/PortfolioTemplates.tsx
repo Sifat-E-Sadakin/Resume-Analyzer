@@ -1,8 +1,11 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Check } from "lucide-react";
+import { Check, Loader2 } from "lucide-react";
+import { useToast } from "@/hooks/use-toast";
+import { useLocation } from "wouter";
+import { apiRequest } from "@/lib/queryClient";
 import minimalTemplate from "@assets/generated_images/Minimal_portfolio_template_0d23bb84.png";
 import creativeTemplate from "@assets/generated_images/Creative_portfolio_template_cc9acddf.png";
 
@@ -32,6 +35,58 @@ const templates = [
 
 export default function PortfolioTemplates() {
   const [selected, setSelected] = useState<string>("minimal");
+  const [portfolioData, setPortfolioData] = useState<any>(null);
+  const [isGenerating, setIsGenerating] = useState(false);
+  const { toast } = useToast();
+  const [, setLocation] = useLocation();
+
+  useEffect(() => {
+    const storedData = sessionStorage.getItem("portfolioData");
+    if (storedData) {
+      setPortfolioData(JSON.parse(storedData));
+    } else {
+      setLocation("/upload");
+    }
+  }, [setLocation]);
+
+  const handleGeneratePortfolio = async () => {
+    if (!portfolioData?.extractedData) return;
+
+    setIsGenerating(true);
+    try {
+      const { extractedData, resumeId } = portfolioData;
+      
+      await apiRequest("POST", "/api/portfolios", {
+        resumeId,
+        templateId: selected,
+        data: {
+          name: extractedData.name || "Your Name",
+          title: extractedData.title || "Professional Title",
+          bio: `Experienced professional with expertise in ${extractedData.experience?.[0]?.role || "various fields"}`,
+          skills: portfolioData.extractedData.skills?.present || [],
+          experience: extractedData.experience || [],
+          education: extractedData.education || [],
+          projects: extractedData.projects || [],
+        },
+      });
+
+      toast({
+        title: "Portfolio generated!",
+        description: "Your portfolio has been created successfully",
+      });
+
+      // For now, just show success - in full implementation would show portfolio preview
+      setTimeout(() => setLocation("/"), 1500);
+    } catch (error) {
+      toast({
+        title: "Generation failed",
+        description: error instanceof Error ? error.message : "Failed to generate portfolio",
+        variant: "destructive",
+      });
+    } finally {
+      setIsGenerating(false);
+    }
+  };
 
   return (
     <div className="max-w-6xl mx-auto p-6 space-y-8">
@@ -92,8 +147,20 @@ export default function PortfolioTemplates() {
       </div>
 
       <div className="flex justify-center pt-4">
-        <Button size="lg" data-testid="button-use-template">
-          Use {templates.find(t => t.id === selected)?.name} Template
+        <Button 
+          size="lg" 
+          onClick={handleGeneratePortfolio}
+          disabled={isGenerating || !portfolioData}
+          data-testid="button-use-template"
+        >
+          {isGenerating ? (
+            <>
+              <Loader2 className="mr-2 w-5 h-5 animate-spin" />
+              Generating...
+            </>
+          ) : (
+            `Use ${templates.find(t => t.id === selected)?.name} Template`
+          )}
         </Button>
       </div>
     </div>
