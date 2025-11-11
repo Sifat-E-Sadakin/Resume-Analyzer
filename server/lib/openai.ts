@@ -104,7 +104,27 @@ Respond with a JSON object matching this structure:
     });
 
     const result = JSON.parse(response.choices[0].message.content || "{}");
-    return result;
+    
+    // Ensure the result has all required fields with defaults
+    return {
+      overallScore: result.overallScore || 0,
+      scores: {
+        content: result.scores?.content || 0,
+        skills: result.scores?.skills || 0,
+        impact: result.scores?.impact || 0,
+        formatting: result.scores?.formatting || 0,
+      },
+      feedback: result.feedback || [],
+      skills: {
+        present: result.skills?.present || [],
+        missing: result.skills?.missing || [],
+      },
+      extractedData: result.extractedData || {
+        experience: [],
+        education: [],
+        projects: [],
+      },
+    };
   } catch (error) {
     throw new Error(`Resume analysis failed: ${error instanceof Error ? error.message : 'Unknown error'}`);
   }

@@ -88,10 +88,10 @@ export default function AnalysisDashboard() {
       </div>
 
       <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
-        <ScoreCard title="Overall Score" score={analysis.overallScore} icon={Award} description="Resume quality" />
-        <ScoreCard title="Content" score={analysis.scores.content} icon={FileText} description="Content quality" />
-        <ScoreCard title="Skills Match" score={analysis.scores.skills} icon={Target} description="Skills alignment" />
-        <ScoreCard title="Impact" score={analysis.scores.impact} icon={Zap} description="Impact & achievements" />
+        <ScoreCard title="Overall Score" score={analysis.overallScore || 0} icon={Award} description="Resume quality" />
+        <ScoreCard title="Content" score={analysis.scores?.content || 0} icon={FileText} description="Content quality" />
+        <ScoreCard title="Skills Match" score={analysis.scores?.skills || 0} icon={Target} description="Skills alignment" />
+        <ScoreCard title="Impact" score={analysis.scores?.impact || 0} icon={Zap} description="Impact & achievements" />
       </div>
 
       <Card className="p-6">
@@ -103,7 +103,7 @@ export default function AnalysisDashboard() {
           <div>
             <h3 className="text-sm font-medium text-muted-foreground mb-3">Your Skills</h3>
             <div className="flex flex-wrap gap-2">
-              {analysis.skills.present.map((skill, idx) => (
+              {(analysis.skills?.present || []).map((skill, idx) => (
                 <Badge key={idx} variant="secondary" data-testid={`badge-skill-present-${idx}`}>
                   <CheckCircle2 className="w-3 h-3 mr-1 text-chart-3" />
                   {skill}
@@ -114,7 +114,7 @@ export default function AnalysisDashboard() {
           <div>
             <h3 className="text-sm font-medium text-muted-foreground mb-3">Recommended Skills</h3>
             <div className="flex flex-wrap gap-2">
-              {analysis.skills.missing.map((skill, idx) => (
+              {(analysis.skills?.missing || []).map((skill, idx) => (
                 <Badge key={idx} variant="outline" data-testid={`badge-skill-missing-${idx}`}>
                   <TrendingUp className="w-3 h-3 mr-1 text-chart-4" />
                   {skill}
@@ -130,7 +130,7 @@ export default function AnalysisDashboard() {
           Detailed Feedback
         </h2>
         <Accordion type="single" collapsible className="space-y-4">
-          {analysis.feedback.map((item, idx) => (
+          {(analysis.feedback || []).map((item, idx) => (
             <AccordionItem key={idx} value={`item-${idx}`} className="border rounded-lg px-6">
               <AccordionTrigger className="hover:no-underline" data-testid={`accordion-trigger-${idx}`}>
                 <div className="flex items-center gap-4 text-left">
