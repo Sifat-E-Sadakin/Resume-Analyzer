@@ -53,9 +53,13 @@ export default function AnalysisDashboard() {
 
   useEffect(() => {
     const storedData = sessionStorage.getItem("currentAnalysis");
+    console.log("Raw sessionStorage data:", storedData);
     if (storedData) {
-      setAnalysisData(JSON.parse(storedData));
+      const parsed = JSON.parse(storedData);
+      console.log("Parsed analysis data:", parsed);
+      setAnalysisData(parsed);
     } else {
+      console.log("No analysis data found in sessionStorage");
       // Redirect to upload if no analysis data
       setLocation("/upload");
     }
@@ -70,6 +74,14 @@ export default function AnalysisDashboard() {
   }
 
   const { analysis, resumeId, extractedData } = analysisData;
+  
+  console.log("=== ANALYSIS DASHBOARD DATA ===");
+  console.log("Full analysisData:", analysisData);
+  console.log("analysis object:", analysis);
+  console.log("resumeId:", resumeId);
+  console.log("extractedData:", extractedData);
+  console.log("==============================");
+  
   const handleGeneratePortfolio = () => {
     sessionStorage.setItem(
       "portfolioData",
@@ -77,7 +89,6 @@ export default function AnalysisDashboard() {
     );
     setLocation("/templates");
   };
-  console.log(analysis);
   return (
     <div className="max-w-7xl mx-auto p-6 space-y-8">
       <div className="flex flex-wrap items-center justify-between gap-4">
