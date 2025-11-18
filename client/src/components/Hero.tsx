@@ -10,30 +10,52 @@ export default function Hero() {
           <div className="space-y-8">
             <div className="inline-flex items-center gap-2 px-4 py-2 bg-primary/10 rounded-full">
               <Sparkles className="w-4 h-4 text-primary" />
-              <span className="text-sm font-medium text-primary" data-testid="text-hero-badge">Powered by GPT-4</span>
+              <span
+                className="text-sm font-medium text-primary"
+                data-testid="text-hero-badge"
+              >
+                Powered by GPT-4o
+              </span>
             </div>
-            
-            <h1 className="text-5xl lg:text-7xl font-bold leading-tight" data-testid="text-hero-heading">
+
+            <h1
+              className="text-5xl lg:text-7xl font-bold leading-tight"
+              data-testid="text-hero-heading"
+            >
               Transform Your Resume with{" "}
               <span className="bg-gradient-to-r from-primary to-chart-2 bg-clip-text text-transparent">
                 AI Intelligence
               </span>
             </h1>
-            
-            <p className="text-xl text-muted-foreground leading-relaxed max-w-xl" data-testid="text-hero-subheading">
-              Get instant AI-powered feedback on your resume and automatically generate a professional portfolio website. Stand out in your job search with data-driven insights.
+
+            <p
+              className="text-xl text-muted-foreground leading-relaxed max-w-xl"
+              data-testid="text-hero-subheading"
+            >
+              Get instant AI-powered feedback on your resume and automatically
+              generate a professional portfolio website. Stand out in your job
+              search with data-driven insights.
             </p>
-            
+
             <div className="flex flex-wrap gap-4">
-              <Button size="lg" className="px-8 py-6 text-base" data-testid="button-analyze-resume">
+              <Button
+                size="lg"
+                className="px-8 py-6 text-base"
+                data-testid="button-analyze-resume"
+              >
                 Analyze Your Resume
                 <ArrowRight className="ml-2 w-5 h-5" />
               </Button>
-              <Button size="lg" variant="outline" className="px-8 py-6 text-base" data-testid="button-view-sample">
+              <Button
+                size="lg"
+                variant="outline"
+                className="px-8 py-6 text-base"
+                data-testid="button-view-sample"
+              >
                 View Sample Analysis
               </Button>
             </div>
-            
+
             <div className="flex items-center gap-6 pt-4 text-sm text-muted-foreground">
               <div className="flex items-center gap-2">
                 <div className="w-2 h-2 bg-chart-3 rounded-full" />
@@ -49,11 +71,11 @@ export default function Hero() {
               </div>
             </div>
           </div>
-          
+
           <div className="relative lg:block hidden">
             <div className="relative rounded-2xl overflow-hidden shadow-2xl border border-border">
-              <img 
-                src={dashboardMockup} 
+              <img
+                src={dashboardMockup}
                 alt="Resume analysis dashboard preview"
                 className="w-full h-auto"
                 data-testid="img-hero-mockup"
