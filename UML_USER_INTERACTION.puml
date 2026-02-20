@@ -1,0 +1,135 @@
+@startuml User_Interaction_Diagram
+
+!theme plain
+skinparam usecase {
+  BackgroundColor lightblue
+  BorderColor black
+}
+skinparam actor {
+  BackgroundColor lightyellow
+  BorderColor black
+}
+
+' ============================================
+' USE CASE DIAGRAM - User Interactions
+' ============================================
+
+left to right direction
+
+actor "User" as User
+
+rectangle "Resume Portfolio Builder System" {
+  
+  ' Home Page Use Cases
+  package "Home Page" {
+    usecase "View Home Page" as UC1
+    usecase "Browse Features" as UC2
+    usecase "View How It Works" as UC3
+    usecase "Navigate to Upload" as UC4
+  }
+  
+  ' Upload Use Cases
+  package "Resume Upload" {
+    usecase "Upload Resume File" as UC5
+    usecase "Drag and Drop File" as UC6
+    usecase "Browse and Select File" as UC7
+    usecase "Enter Job Description (Optional)" as UC8
+    usecase "Enter Target Role (Optional)" as UC9
+    usecase "Remove Uploaded File" as UC10
+    usecase "Start Resume Analysis" as UC11
+  }
+  
+  ' Analysis Use Cases
+  package "Resume Analysis" {
+    usecase "View Analysis Dashboard" as UC12
+    usecase "View Overall Score" as UC13
+    usecase "View Detailed Scores" as UC14
+    usecase "View Section Feedback" as UC15
+    usecase "View Skills Analysis" as UC16
+    usecase "View Recommendations" as UC17
+    usecase "View Job Match Score" as UC18
+    usecase "View Recommended Changes" as UC19
+  }
+  
+  ' Improved Resume Use Cases
+  package "Resume Improvement" {
+    usecase "Generate Improved Resume" as UC20
+    usecase "View Improved Resume" as UC21
+    usecase "Copy Improved Resume" as UC22
+    usecase "Download Improved Resume" as UC23
+  }
+  
+  ' Portfolio Use Cases
+  package "Portfolio Generation" {
+    usecase "Browse Portfolio Templates" as UC24
+    usecase "Select Portfolio Template" as UC25
+    usecase "Generate Portfolio" as UC26
+    usecase "View Generated Portfolio" as UC27
+  }
+  
+  ' Navigation Use Cases
+  package "Navigation" {
+    usecase "Navigate Between Pages" as UC28
+    usecase "Return to Previous Page" as UC29
+  }
+}
+
+' User to Use Case Relationships
+User --> UC1 : Views landing page
+User --> UC2 : Scrolls to features section
+User --> UC3 : Scrolls to how it works
+User --> UC4 : Clicks "Get Started"
+
+User --> UC5 : Uploads resume
+User --> UC6 : Drags file to upload zone
+User --> UC7 : Clicks browse button
+User --> UC8 : Enters job description text
+User --> UC9 : Enters target role
+User --> UC10 : Removes file before analysis
+User --> UC11 : Clicks "Analyze Resume"
+
+User --> UC12 : Views analysis results
+User --> UC13 : Sees overall score
+User --> UC14 : Reviews detailed scores
+User --> UC15 : Reads section feedback
+User --> UC16 : Checks skills analysis
+User --> UC17 : Views improvement suggestions
+User --> UC18 : Sees job match score (if job provided)
+User --> UC19 : Reviews recommended changes
+
+User --> UC20 : Requests improved resume
+User --> UC21 : Views improved resume content
+User --> UC22 : Copies text to clipboard
+User --> UC23 : Downloads as text file
+
+User --> UC24 : Browses available templates
+User --> UC25 : Selects preferred template
+User --> UC26 : Generates portfolio from resume
+User --> UC27 : Views generated portfolio
+
+User --> UC28 : Uses navigation menu
+User --> UC29 : Clicks back button
+
+' Use Case Dependencies
+UC5 ..> UC6 : includes
+UC5 ..> UC7 : includes
+UC11 ..> UC5 : requires
+UC11 ..> UC8 : optional
+UC11 ..> UC9 : optional
+UC12 ..> UC11 : follows
+UC13 ..> UC12 : part of
+UC14 ..> UC12 : part of
+UC15 ..> UC12 : part of
+UC16 ..> UC12 : part of
+UC17 ..> UC12 : part of
+UC18 ..> UC8 : requires
+UC19 ..> UC8 : requires
+UC20 ..> UC19 : requires
+UC21 ..> UC20 : follows
+UC22 ..> UC21 : extends
+UC23 ..> UC21 : extends
+UC26 ..> UC25 : requires
+UC26 ..> UC12 : requires
+UC27 ..> UC26 : follows
+
+@enduml

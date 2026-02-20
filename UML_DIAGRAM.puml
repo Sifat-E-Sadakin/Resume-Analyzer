@@ -1,0 +1,355 @@
+@startuml ResumePortfolioBuilder_UML
+
+!theme plain
+skinparam classAttributeIconSize 0
+
+' ============================================
+' CLIENT LAYER (React/TypeScript Frontend)
+' ============================================
+
+package "Client Layer" {
+  
+  class App {
+    +Router: Component
+    +QueryClientProvider: Component
+    +TooltipProvider: Component
+    +Toaster: Component
+  }
+  
+  class Router {
+    +Switch: Component
+    +Route: Component[]
+  }
+  
+  class Home {
+    +render(): JSX.Element
+  }
+  
+  class Upload {
+    +render(): JSX.Element
+  }
+  
+  class Analysis {
+    +render(): JSX.Element
+  }
+  
+  class Templates {
+    +render(): JSX.Element
+  }
+  
+  class ImprovedResume {
+    +render(): JSX.Element
+  }
+  
+  class Navbar {
+    +render(): JSX.Element
+  }
+  
+  class UploadZone {
+    +handleFileUpload(file: File): void
+    +handleJobDescription(jobDesc: string): void
+  }
+  
+  class AnalysisDashboard {
+    +displayAnalysis(analysis: Analysis): void
+    +displayScores(scores: Scores): void
+    +displayFeedback(feedback: Feedback[]): void
+  }
+  
+  class ScoreCard {
+    +displayScore(score: number): void
+    +displayLabel(label: string): void
+  }
+  
+  class PortfolioTemplates {
+    +selectTemplate(templateId: string): void
+    +generatePortfolio(data: PortfolioData): void
+  }
+  
+  class Features {
+    +render(): JSX.Element
+  }
+  
+  class Hero {
+    +render(): JSX.Element
+  }
+  
+  class HowItWorks {
+    +render(): JSX.Element
+  }
+  
+  class Footer {
+    +render(): JSX.Element
+  }
+  
+  ' Relationships
+  App --> Router
+  Router --> Home
+  Router --> Upload
+  Router --> Analysis
+  Router --> Templates
+  Router --> ImprovedResume
+  
+  Upload --> Navbar
+  Upload --> UploadZone
+  Analysis --> Navbar
+  Analysis --> AnalysisDashboard
+  AnalysisDashboard --> ScoreCard
+  Templates --> PortfolioTemplates
+}
+
+' ============================================
+' SERVER LAYER (Express/Node.js Backend)
+' ============================================
+
+package "Server Layer" {
+  
+  class ExpressServer {
+    +app: Express
+    +server: Server
+    +setupMiddleware(): void
+    +registerRoutes(): void
+    +start(port: number): void
+  }
+  
+  class Routes {
+    +registerRoutes(app: Express): Promise<Server>
+    +POST /api/resumes/upload: Handler
+    +GET /api/resumes/:resumeId/analysis: Handler
+    +POST /api/portfolios: Handler
+    +GET /api/resumes/:resumeId/portfolio: Handler
+    +GET /api/resumes/:resumeId/job-application: Handler
+    +POST /api/resumes/:resumeId/generate-improved: Handler
+  }
+  
+  class DocumentParser {
+    +parseDocument(buffer: Buffer, filename: string): Promise<string>
+    +parsePDF(buffer: Buffer): Promise<string>
+    +parseDOCX(buffer: Buffer): Promise<string>
+  }
+  
+  class OpenAIService {
+    +openai: OpenAI
+    +analyzeResume(resumeText: string): Promise<ResumeAnalysisResult>
+    +analyzeResumeWithJob(resumeText: string, jobDescription: string, targetRole?: string): Promise<JobTargetedAnalysisResult>
+    +generateImprovedResume(resumeText: string, jobDescription: string, recommendedChanges: RecommendedChanges, targetRole?: string): Promise<string>
+  }
+  
+  ' Relationships
+  ExpressServer --> Routes
+  Routes --> DocumentParser
+  Routes --> OpenAIService
+  Routes --> IStorage
+}
+
+' ============================================
+' DATA LAYER
+' ============================================
+
+package "Data Layer" {
+  
+  interface IStorage {
+    +getUser(id: string): Promise<User | undefined>
+    +getUserByUsername(username: string): Promise<User | undefined>
+    +createUser(user: InsertUser): Promise<User>
+    +createResume(resume: InsertResume): Promise<Resume>
+    +getResume(id: string): Promise<Resume | undefined>
+    +createAnalysis(analysis: InsertAnalysis): Promise<Analysis>
+    +getAnalysis(id: string): Promise<Analysis | undefined>
+    +getAnalysisByResumeId(resumeId: string): Promise<Analysis | undefined>
+    +createPortfolio(portfolio: InsertPortfolio): Promise<Portfolio>
+    +getPortfolio(id: string): Promise<Portfolio | undefined>
+    +getPortfolioByResumeId(resumeId: string): Promise<Portfolio | undefined>
+    +createJobApplication(jobApplication: InsertJobApplication): Promise<JobApplication>
+    +getJobApplication(id: string): Promise<JobApplication | undefined>
+    +getJobApplicationByResumeId(resumeId: string): Promise<JobApplication | undefined>
+    +updateJobApplication(id: string, updates: Partial<InsertJobApplication>): Promise<JobApplication | undefined>
+  }
+  
+  class MemStorage {
+    -users: Map<string, User>
+    -resumes: Map<string, Resume>
+    -analyses: Map<string, Analysis>
+    -portfolios: Map<string, Portfolio>
+    -jobApplications: Map<string, JobApplication>
+    +getUser(id: string): Promise<User | undefined>
+    +createUser(user: InsertUser): Promise<User>
+    +createResume(resume: InsertResume): Promise<Resume>
+    +getResume(id: string): Promise<Resume | undefined>
+    +createAnalysis(analysis: InsertAnalysis): Promise<Analysis>
+    +getAnalysisByResumeId(resumeId: string): Promise<Analysis | undefined>
+    +createPortfolio(portfolio: InsertPortfolio): Promise<Portfolio>
+    +getPortfolioByResumeId(resumeId: string): Promise<Portfolio | undefined>
+    +createJobApplication(jobApplication: InsertJobApplication): Promise<JobApplication>
+    +getJobApplicationByResumeId(resumeId: string): Promise<JobApplication | undefined>
+    +updateJobApplication(id: string, updates: Partial<InsertJobApplication>): Promise<JobApplication | undefined>
+  }
+  
+  IStorage <|.. MemStorage
+}
+
+' ============================================
+' DATA MODELS (Schema)
+' ============================================
+
+package "Data Models" {
+  
+  class User {
+    +id: string
+    +username: string
+    +password: string
+  }
+  
+  class Resume {
+    +id: string
+    +filename: string
+    +content: string
+    +uploadedAt: Date
+  }
+  
+  class Analysis {
+    +id: string
+    +resumeId: string
+    +overallScore: string
+    +scores: Scores
+    +feedback: Feedback[]
+    +skills: SkillsAnalysis
+    +createdAt: Date
+  }
+  
+  class Scores {
+    +content: number
+    +skills: number
+    +impact: number
+    +formatting: number
+  }
+  
+  class Feedback {
+    +section: string
+    +score: number
+    +points: FeedbackPoint[]
+    +suggestions: string[]
+  }
+  
+  class FeedbackPoint {
+    +type: "success" | "warning"
+    +text: string
+  }
+  
+  class SkillsAnalysis {
+    +present: string[]
+    +missing: string[]
+  }
+  
+  class JobApplication {
+    +id: string
+    +resumeId: string
+    +analysisId: string | null
+    +jobDescription: string
+    +targetRole: string | null
+    +improvedResumeContent: string | null
+    +recommendedChanges: RecommendedChanges | null
+    +matchScore: number | null
+    +createdAt: Date
+  }
+  
+  class RecommendedChanges {
+    +keywordOptimization: string[]
+    +experienceAlignment: string[]
+    +skillsHighlight: string[]
+    +formatSuggestions: string[]
+  }
+  
+  class Portfolio {
+    +id: string
+    +resumeId: string
+    +templateId: string
+    +data: PortfolioData
+    +createdAt: Date
+  }
+  
+  class PortfolioData {
+    +name: string
+    +title: string
+    +bio: string
+    +skills: string[]
+    +experience: Experience[]
+    +education: Education[]
+    +projects?: Project[]
+  }
+  
+  class Experience {
+    +company: string
+    +role: string
+    +duration: string
+    +description: string
+  }
+  
+  class Education {
+    +institution: string
+    +degree: string
+    +year: string
+  }
+  
+  class Project {
+    +name: string
+    +description: string
+    +link?: string
+  }
+  
+  ' Relationships
+  Resume "1" --> "0..*" Analysis
+  Resume "1" --> "0..*" JobApplication
+  Resume "1" --> "0..*" Portfolio
+  Analysis "1" --> "0..1" JobApplication
+  Analysis --> Scores
+  Analysis --> Feedback
+  Analysis --> SkillsAnalysis
+  Feedback --> FeedbackPoint
+  JobApplication --> RecommendedChanges
+  Portfolio --> PortfolioData
+  PortfolioData --> Experience
+  PortfolioData --> Education
+  PortfolioData --> Project
+}
+
+' ============================================
+' EXTERNAL SERVICES
+' ============================================
+
+package "External Services" {
+  
+  class OpenAI {
+    +chat.completions.create(): Promise<ChatCompletion>
+  }
+  
+  class PDFParse {
+    +getText(): Promise<PDFResult>
+    +destroy(): void
+  }
+  
+  class Mammoth {
+    +extractRawText(): Promise<MammothResult>
+  }
+  
+  ' Relationships
+  OpenAIService --> OpenAI
+  DocumentParser --> PDFParse
+  DocumentParser --> Mammoth
+}
+
+' ============================================
+' CROSS-LAYER RELATIONSHIPS
+' ============================================
+
+UploadZone ..> Routes : HTTP POST
+AnalysisDashboard ..> Routes : HTTP GET
+PortfolioTemplates ..> Routes : HTTP POST/GET
+
+Routes --> MemStorage : uses
+MemStorage --> Resume : stores
+MemStorage --> Analysis : stores
+MemStorage --> JobApplication : stores
+MemStorage --> Portfolio : stores
+
+@enduml
