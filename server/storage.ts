@@ -9,7 +9,7 @@ import {
   type InsertPortfolio,
   type JobApplication,
   type InsertJobApplication
-} from "@shared/schema";
+} from "../shared/schema";
 import { randomUUID } from "crypto";
 
 export interface IStorage {

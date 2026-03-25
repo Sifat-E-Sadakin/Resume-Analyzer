@@ -1,0 +1,226 @@
+@startuml User_Sequence_Diagrams
+
+!theme plain
+skinparam sequenceMessageAlign center
+skinparam maxMessageSize 60
+
+' ============================================
+' SEQUENCE DIAGRAM 1: Upload and Analyze Resume
+' ============================================
+
+== Upload and Analyze Resume (Basic Flow) ==
+
+actor User
+participant "Upload Page" as UploadPage
+participant "UploadZone Component" as UploadZone
+participant "Express Server" as Server
+participant "Document Parser" as Parser
+participant "Storage" as Storage
+participant "OpenAI Service" as OpenAI
+participant "Analysis Page" as AnalysisPage
+participant "Analysis Dashboard" as Dashboard
+
+User -> UploadPage: Navigate to /upload
+UploadPage -> UploadZone: Render upload interface
+
+User -> UploadZone: Drag & drop or select file
+UploadZone -> UploadZone: Validate file type (PDF/DOCX)
+UploadZone -> UploadZone: Display file info
+
+User -> UploadZone: Click "Analyze Resume"
+UploadZone -> Server: POST /api/resumes/upload\n(file, optional jobDescription)
+
+Server -> Parser: parseDocument(buffer, filename)
+Parser -> Parser: Extract text from PDF/DOCX
+Parser --> Server: Return resume text content
+
+Server -> Storage: createResume(filename, content)
+Storage --> Server: Return resume object
+
+Server -> OpenAI: analyzeResume(resumeText)
+OpenAI -> OpenAI: GPT-4 analysis
+OpenAI --> Server: Return analysis result\n(scores, feedback, skills, extractedData)
+
+Server -> Storage: createAnalysis(resumeId, analysisData)
+Storage --> Server: Return analysis object
+
+Server --> UploadZone: Return response\n(resumeId, analysisId, analysis data)
+
+UploadZone -> UploadZone: Store analysis in sessionStorage
+UploadZone -> UploadZone: Show success toast
+UploadZone -> AnalysisPage: Navigate to /analysis
+
+AnalysisPage -> Dashboard: Render with analysis data
+Dashboard -> User: Display analysis results\n(scores, feedback, skills)
+
+' ============================================
+' SEQUENCE DIAGRAM 2: Upload with Job Description
+' ============================================
+
+== Upload Resume with Job Description ==
+
+actor User
+participant "Upload Page" as UploadPage
+participant "UploadZone Component" as UploadZone
+participant "Express Server" as Server
+participant "Document Parser" as Parser
+participant "Storage" as Storage
+participant "OpenAI Service" as OpenAI
+participant "Analysis Page" as AnalysisPage
+
+User -> UploadPage: Navigate to /upload
+UploadPage -> UploadZone: Render upload interface
+
+User -> UploadZone: Upload resume file
+User -> UploadZone: Enter job description
+User -> UploadZone: Enter target role (optional)
+User -> UploadZone: Click "Analyze for This Job"
+
+UploadZone -> Server: POST /api/resumes/upload\n(file, jobDescription, targetRole)
+
+Server -> Parser: parseDocument(buffer, filename)
+Parser --> Server: Return resume text
+
+Server -> Storage: createResume(filename, content)
+Storage --> Server: Return resume
+
+Server -> OpenAI: analyzeResume(resumeText)
+OpenAI --> Server: Return basic analysis
+
+Server -> Storage: createAnalysis(resumeId, analysisData)
+Storage --> Server: Return analysis
+
+Server -> OpenAI: analyzeResumeWithJob(\nresumeText, jobDescription, targetRole)
+OpenAI -> OpenAI: GPT-4 job-targeted analysis
+OpenAI --> Server: Return job analysis\n(matchScore, recommendedChanges)
+
+Server -> Storage: createJobApplication(\nresumeId, analysisId, jobDescription,\nmatchScore, recommendedChanges)
+Storage --> Server: Return jobApplication
+
+Server --> UploadZone: Return response\n(analysis + jobApplication data)
+
+UploadZone -> UploadZone: Store in sessionStorage
+UploadZone -> AnalysisPage: Navigate to /analysis
+
+AnalysisPage -> User: Display analysis with\njob match score and recommendations
+
+' ============================================
+' SEQUENCE DIAGRAM 3: Generate Improved Resume
+' ============================================
+
+== Generate Improved Resume ==
+
+actor User
+participant "Analysis Page" as AnalysisPage
+participant "Analysis Dashboard" as Dashboard
+participant "Express Server" as Server
+participant "Storage" as Storage
+participant "OpenAI Service" as OpenAI
+participant "Improved Resume Page" as ImprovedPage
+
+User -> AnalysisPage: View analysis results
+AnalysisPage -> Dashboard: Display job recommendations
+
+User -> Dashboard: Click "Generate Improved Resume"
+Dashboard -> Server: POST /api/resumes/:resumeId/generate-improved
+
+Server -> Storage: getResume(resumeId)
+Storage --> Server: Return resume content
+
+Server -> Storage: getJobApplicationByResumeId(resumeId)
+Storage --> Server: Return jobApplication\nwith recommendedChanges
+
+Server -> OpenAI: generateImprovedResume(\nresumeText, jobDescription,\nrecommendedChanges, targetRole)
+OpenAI -> OpenAI: GPT-4 generates improved version
+OpenAI --> Server: Return improved resume text
+
+Server -> Storage: updateJobApplication(\njobApplicationId, improvedResumeContent)
+Storage --> Server: Return updated jobApplication
+
+Server --> Dashboard: Return improved resume content
+
+Dashboard -> Dashboard: Store in sessionStorage
+Dashboard -> ImprovedPage: Navigate to /improved-resume
+
+ImprovedPage -> User: Display improved resume\nwith copy/download options
+
+User -> ImprovedPage: Click "Copy Text"
+ImprovedPage -> ImprovedPage: Copy to clipboard
+ImprovedPage -> User: Show "Copied!" confirmation
+
+User -> ImprovedPage: Click "Download"
+ImprovedPage -> ImprovedPage: Generate text file
+ImprovedPage -> User: Download file
+
+' ============================================
+' SEQUENCE DIAGRAM 4: Create Portfolio
+' ============================================
+
+== Create Portfolio from Resume ==
+
+actor User
+participant "Templates Page" as TemplatesPage
+participant "Portfolio Templates" as Templates
+participant "Express Server" as Server
+participant "Storage" as Storage
+participant "Analysis Page" as AnalysisPage
+
+User -> AnalysisPage: View analysis results
+AnalysisPage -> TemplatesPage: Navigate to /templates
+
+TemplatesPage -> Templates: Render template gallery
+
+User -> Templates: Browse available templates
+Templates -> User: Display template previews
+
+User -> Templates: Select template (e.g., "Minimal")
+Templates -> Templates: Get resume data from sessionStorage
+
+User -> Templates: Click "Generate Portfolio"
+Templates -> Server: POST /api/portfolios\n(resumeId, templateId, portfolioData)
+
+Server -> Storage: createPortfolio(\nresumeId, templateId, data)
+Storage --> Server: Return portfolio object
+
+Server --> Templates: Return portfolio
+
+Templates -> Templates: Store portfolio data
+Templates -> User: Display generated portfolio\nwith template styling
+
+User -> Templates: View portfolio preview
+User -> Templates: Navigate back to analysis
+
+' ============================================
+' SEQUENCE DIAGRAM 5: View Analysis Results
+' ============================================
+
+== View Stored Analysis Results ==
+
+actor User
+participant "Analysis Page" as AnalysisPage
+participant "Analysis Dashboard" as Dashboard
+participant "Express Server" as Server
+participant "Storage" as Storage
+
+User -> AnalysisPage: Navigate to /analysis
+
+alt Analysis data in sessionStorage
+  AnalysisPage -> AnalysisPage: Load from sessionStorage
+  AnalysisPage -> Dashboard: Pass analysis data
+  Dashboard -> User: Display analysis immediately
+else No data in sessionStorage
+  AnalysisPage -> Server: GET /api/resumes/:resumeId/analysis
+  Server -> Storage: getAnalysisByResumeId(resumeId)
+  Storage --> Server: Return analysis
+  Server --> AnalysisPage: Return analysis data
+  AnalysisPage -> Dashboard: Pass analysis data
+  Dashboard -> User: Display analysis
+end
+
+Dashboard -> User: Show overall score
+Dashboard -> User: Show detailed scores\n(content, skills, impact, formatting)
+Dashboard -> User: Show section feedback
+Dashboard -> User: Show skills analysis\n(present and missing skills)
+Dashboard -> User: Show recommendations
+
+@enduml

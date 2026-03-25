@@ -56,7 +56,7 @@ export default function PortfolioTemplates() {
     try {
       const { extractedData, resumeId } = portfolioData;
       
-      await apiRequest("POST", "/api/portfolios", {
+      const portfolioPayload = {
         resumeId,
         templateId: selected,
         data: {
@@ -67,16 +67,28 @@ export default function PortfolioTemplates() {
           experience: extractedData.experience || [],
           education: extractedData.education || [],
           projects: extractedData.projects || [],
+          certificates: extractedData.certificates || [],
         },
-      });
+      };
+
+      const res = await apiRequest("POST", "/api/portfolios", portfolioPayload);
+      const portfolio = await res.json();
+
+      sessionStorage.setItem(
+        "generatedPortfolio",
+        JSON.stringify({
+          id: portfolio.id,
+          templateId: selected,
+          data: portfolioPayload.data,
+        }),
+      );
 
       toast({
         title: "Portfolio generated!",
         description: "Your portfolio has been created successfully",
       });
 
-      // For now, just show success - in full implementation would show portfolio preview
-      setTimeout(() => setLocation("/"), 1500);
+      setLocation("/portfolio-preview");
     } catch (error) {
       toast({
         title: "Generation failed",

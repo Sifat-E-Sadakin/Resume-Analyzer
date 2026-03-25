@@ -4,7 +4,7 @@ import multer from "multer";
 import { storage } from "./storage";
 import { parseDocument } from "./lib/documentParser";
 import { analyzeResume, analyzeResumeWithJob, generateImprovedResume } from "./lib/openai";
-import { insertResumeSchema, insertAnalysisSchema, insertPortfolioSchema, insertJobApplicationSchema } from "@shared/schema";
+import { insertResumeSchema, insertAnalysisSchema, insertPortfolioSchema, insertJobApplicationSchema } from "../shared/schema";
 
 const upload = multer({ 
   storage: multer.memoryStorage(),
