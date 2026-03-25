@@ -1,14 +1,17 @@
 import { Switch, Route } from "wouter";
+import { lazy, Suspense } from "react";
 import { queryClient } from "./lib/queryClient";
 import { QueryClientProvider } from "@tanstack/react-query";
 import { Toaster } from "@/components/ui/toaster";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import Home from "@/pages/Home";
-import Upload from "@/pages/Upload";
-import Analysis from "@/pages/Analysis";
-import Templates from "@/pages/Templates";
-import ImprovedResume from "@/pages/ImprovedResume";
 import NotFound from "@/pages/not-found";
+
+const Upload = lazy(() => import("@/pages/Upload"));
+const Analysis = lazy(() => import("@/pages/Analysis"));
+const Templates = lazy(() => import("@/pages/Templates"));
+const ImprovedResume = lazy(() => import("@/pages/ImprovedResume"));
+const PortfolioPreviewPage = lazy(() => import("@/pages/PortfolioPreviewPage"));
 
 function Router() {
   return (
@@ -18,6 +21,7 @@ function Router() {
       <Route path="/analysis" component={Analysis} />
       <Route path="/templates" component={Templates} />
       <Route path="/improved-resume" component={ImprovedResume} />
+      <Route path="/portfolio-preview" component={PortfolioPreviewPage} />
       <Route component={NotFound} />
     </Switch>
   );
@@ -28,7 +32,9 @@ function App() {
     <QueryClientProvider client={queryClient}>
       <TooltipProvider>
         <Toaster />
-        <Router />
+        <Suspense fallback={<div className="flex items-center justify-center min-h-screen">Loading...</div>}>
+          <Router />
+        </Suspense>
       </TooltipProvider>
     </QueryClientProvider>
   );
