@@ -1,6 +1,7 @@
 import { useState, useEffect, useRef } from "react";
 import { Button } from "@/components/ui/button";
-import { ArrowLeft, Eye, Palette } from "lucide-react";
+import { ArrowLeft, Eye, Palette, Link, Check } from "lucide-react";
+import { useToast } from "@/hooks/use-toast";
 import { useLocation } from "wouter";
 import Navbar from "@/components/Navbar";
 import PortfolioPreview from "@/components/PortfolioPreview";
@@ -47,7 +48,10 @@ const templateNames: Record<string, string> = {
 export default function PortfolioPreviewPage() {
   const [portfolio, setPortfolio] = useState<StoredPortfolio | null>(null);
   const [, setLocation] = useLocation();
+  const [copied, setCopied] = useState(false);
+  const [sharing, setSharing] = useState(false);
   const previewRef = useRef<HTMLDivElement>(null);
+  const { toast } = useToast();
 
   function handlePreview() {
     const el = previewRef.current;
@@ -74,6 +78,29 @@ ${el.innerHTML}
     if (tab) {
       tab.document.write(html);
       tab.document.close();
+    }
+  }
+
+  async function handleShareLink() {
+    if (!portfolio) return;
+    setSharing(true);
+    try {
+      const shareUrl = `${window.location.origin}/portfolio/${portfolio.id}`;
+      await navigator.clipboard.writeText(shareUrl);
+      setCopied(true);
+      toast({
+        title: "Link copied!",
+        description: "Shareable portfolio link has been copied to your clipboard.",
+      });
+      setTimeout(() => setCopied(false), 2000);
+    } catch {
+      toast({
+        title: "Failed to copy",
+        description: "Could not copy the link. Please try again.",
+        variant: "destructive",
+      });
+    } finally {
+      setSharing(false);
     }
   }
 
@@ -122,6 +149,14 @@ ${el.innerHTML}
               <Button variant="outline" onClick={() => setLocation("/templates")}>
                 <Palette className="mr-2 w-4 h-4" />
                 Change Template
+              </Button>
+              <Button variant="outline" onClick={handleShareLink} disabled={sharing}>
+                {copied ? (
+                  <Check className="mr-2 w-4 h-4 text-green-500" />
+                ) : (
+                  <Link className="mr-2 w-4 h-4" />
+                )}
+                {copied ? "Copied!" : "Get Shareable Link"}
               </Button>
               <Button onClick={handlePreview}>
                 <Eye className="mr-2 w-4 h-4" />

@@ -67,7 +67,7 @@ export const jobApplications = pgTable("job_applications", {
 
 export const portfolios = pgTable("portfolios", {
   id: varchar("id").primaryKey().default(sql`gen_random_uuid()`),
-  resumeId: varchar("resume_id").notNull().references(() => resumes.id),
+  resumeId: varchar("resume_id").notNull(),
   templateId: text("template_id").notNull(),
   data: jsonb("data").notNull().$type<{
     name: string;

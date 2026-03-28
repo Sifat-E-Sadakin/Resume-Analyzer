@@ -120,6 +120,23 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Get portfolio by ID (for shareable links)
+  app.get("/api/portfolios/:id", async (req, res) => {
+    try {
+      const { id } = req.params;
+      const portfolio = await storage.getPortfolio(id);
+
+      if (!portfolio) {
+        return res.status(404).json({ error: "Portfolio not found" });
+      }
+
+      res.json(portfolio);
+    } catch (error) {
+      console.error("Get shared portfolio error:", error);
+      res.status(500).json({ error: "Failed to retrieve portfolio" });
+    }
+  });
+
   // Get portfolio by resume ID
   app.get("/api/resumes/:resumeId/portfolio", async (req, res) => {
     try {
