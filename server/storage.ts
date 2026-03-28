@@ -8,9 +8,12 @@ import {
   type Portfolio,
   type InsertPortfolio,
   type JobApplication,
-  type InsertJobApplication
+  type InsertJobApplication,
+  portfolios as portfoliosTable,
 } from "../shared/schema";
 import { randomUUID } from "crypto";
+import { eq } from "drizzle-orm";
+import { db } from "./db";
 
 export interface IStorage {
   getUser(id: string): Promise<User | undefined>;
@@ -176,4 +179,35 @@ export class MemStorage implements IStorage {
   }
 }
 
-export const storage = new MemStorage();
+export class DatabaseStorage extends MemStorage {
+  async createPortfolio(insertPortfolio: InsertPortfolio): Promise<Portfolio> {
+    const [portfolio] = await db
+      .insert(portfoliosTable)
+      .values({
+        id: randomUUID(),
+        resumeId: insertPortfolio.resumeId as string,
+        templateId: insertPortfolio.templateId as string,
+        data: insertPortfolio.data as Portfolio["data"],
+      })
+      .returning();
+    return portfolio;
+  }
+
+  async getPortfolio(id: string): Promise<Portfolio | undefined> {
+    const [portfolio] = await db
+      .select()
+      .from(portfoliosTable)
+      .where(eq(portfoliosTable.id, id));
+    return portfolio ?? undefined;
+  }
+
+  async getPortfolioByResumeId(resumeId: string): Promise<Portfolio | undefined> {
+    const [portfolio] = await db
+      .select()
+      .from(portfoliosTable)
+      .where(eq(portfoliosTable.resumeId, resumeId));
+    return portfolio ?? undefined;
+  }
+}
+
+export const storage = new DatabaseStorage();
