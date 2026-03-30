@@ -22,6 +22,7 @@ An intelligent platform that analyzes resumes using AI, provides actionable feed
 ## 🚀 Tech Stack
 
 ### Frontend
+
 - **React 18** - UI library
 - **TypeScript** - Type safety
 - **Vite** - Fast build tool
@@ -34,6 +35,7 @@ An intelligent platform that analyzes resumes using AI, provides actionable feed
 - **Framer Motion** - Animations
 
 ### Backend
+
 - **Node.js** - Runtime
 - **Express** - Web framework
 - **TypeScript** - Type safety
@@ -126,6 +128,7 @@ This project is optimized for deployment on **Vercel** (recommended) or **Netlif
 ### Quick Deploy to Vercel
 
 1. **Push to GitHub**
+
 ```bash
 git add .
 git commit -m "Ready for deployment"
@@ -199,13 +202,13 @@ npx shadcn-ui@latest add [component-name]
 
 ## 🔐 Environment Variables
 
-| Variable | Description | Required |
-|----------|-------------|----------|
-| `DATABASE_URL` | PostgreSQL connection string | ✅ Yes |
-| `OPENAI_API_KEY` | OpenAI API key for AI features | ✅ Yes |
-| `NODE_ENV` | Environment (development/production) | ✅ Yes |
-| `PORT` | Server port (default: 5000) | ❌ No |
-| `SESSION_SECRET` | Session encryption secret | ✅ Yes |
+| Variable         | Description                          | Required |
+| ---------------- | ------------------------------------ | -------- |
+| `DATABASE_URL`   | PostgreSQL connection string         | ✅ Yes   |
+| `OPENAI_API_KEY` | OpenAI API key for AI features       | ✅ Yes   |
+| `NODE_ENV`       | Environment (development/production) | ✅ Yes   |
+| `PORT`           | Server port (default: 5000)          | ❌ No    |
+| `SESSION_SECRET` | Session encryption secret            | ✅ Yes   |
 
 ---
 
@@ -224,6 +227,7 @@ npm run build
 ## 📝 API Endpoints
 
 ### Resume Analysis
+
 ```
 POST /api/analyze
 Content-Type: multipart/form-data
@@ -231,6 +235,7 @@ Body: { file: <resume-file> }
 ```
 
 ### Portfolio Generation
+
 ```
 POST /api/generate-portfolio
 Content-Type: application/json
@@ -284,12 +289,9 @@ For questions or support, please open an issue or contact:
 ---
 
 <div align="center">
-  
-**Made with ❤️ and AI**
 
 ⭐ Star this repo if you find it helpful!
 
 </div>
 
-# Resume-Analyzer
 # Resume-Analyzer
