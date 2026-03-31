@@ -1,7 +1,50 @@
 import OpenAI from "openai";
 
-// Using gpt-4o which is OpenAI's latest and most capable model
 const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
+
+async function verifyUrl(url: string): Promise<boolean> {
+  try {
+    const parsed = new URL(url);
+    if (!["http:", "https:"].includes(parsed.protocol)) return false;
+
+    const controller = new AbortController();
+    const timeout = setTimeout(() => controller.abort(), 5000);
+
+    const res = await fetch(url, {
+      method: "HEAD",
+      signal: controller.signal,
+      redirect: "follow",
+      headers: { "User-Agent": "Mozilla/5.0 (compatible; ResumeAnalyzer/1.0)" },
+    });
+
+    clearTimeout(timeout);
+    return res.ok;
+  } catch {
+    return false;
+  }
+}
+
+async function filterValidResources(
+  resources: LearningResource[],
+): Promise<LearningResource[]> {
+  const results = await Promise.allSettled(
+    resources.map(async resource => {
+      const valid = await verifyUrl(resource.url);
+      return { resource, valid };
+    }),
+  );
+
+  return results
+    .filter(
+      (
+        r,
+      ): r is PromiseFulfilledResult<{
+        resource: LearningResource;
+        valid: boolean;
+      }> => r.status === "fulfilled" && r.value.valid,
+    )
+    .map(r => r.value.resource);
+}
 
 interface LearningResource {
   title: string;
@@ -32,7 +75,6 @@ interface ResumeAnalysisResult {
     present: string[];
     missing: string[];
   };
-  resources: LearningResource[];
   extractedData: {
     name?: string;
     title?: string;
@@ -57,11 +99,13 @@ interface ResumeAnalysisResult {
   };
 }
 
-export async function analyzeResume(resumeText: string): Promise<ResumeAnalysisResult> {
+export async function analyzeResume(
+  resumeText: string,
+): Promise<ResumeAnalysisResult> {
   try {
     console.log("Starting resume analysis with OpenAI...");
     console.log("Resume text length:", resumeText.length);
-    
+
     const response = await openai.chat.completions.create({
       model: "gpt-4o",
       messages: [
@@ -74,7 +118,6 @@ export async function analyzeResume(resumeText: string): Promise<ResumeAnalysisR
 4. Actionable suggestions for improvement
 5. Skills analysis (present skills and recommended missing skills for modern job market)
 6. Extracted structured data (name, title, contact, experience, education, projects)
-7. Recommended learning resources — for each missing or weak skill, suggest real, well-known online courses, tutorials, tools, or certifications that can help the candidate upskill. Only recommend resources from reputable platforms (Coursera, Udemy, LinkedIn Learning, Google, AWS, Microsoft, freeCodeCamp, MDN, official docs, YouTube channels, etc.). Provide direct URLs when possible.
 
 Be honest, constructive, and specific. Focus on helping the candidate improve their resume to land better opportunities.
 
@@ -99,18 +142,6 @@ Respond with a JSON object matching this structure:
     "present": [string],
     "missing": [string]
   },
-  "resources": [
-    {
-      "title": string (name of the course/tutorial/tool/certification),
-      "provider": string (e.g. "Coursera", "Udemy", "Google", "AWS", "freeCodeCamp"),
-      "type": "course" | "tutorial" | "tool" | "certification",
-      "url": string (direct link to the resource),
-      "skill": string (the skill this resource helps develop),
-      "description": string (one-sentence summary of what the learner will gain),
-      "difficulty": "beginner" | "intermediate" | "advanced",
-      "free": boolean
-    }
-  ],
   "extractedData": {
     "name": string,
     "title": string,
@@ -120,12 +151,12 @@ Respond with a JSON object matching this structure:
     "education": [{"institution": string, "degree": string, "year": string}],
     "projects": [{"name": string, "description": string, "link": string}]
   }
-}`
+}`,
         },
         {
           role: "user",
-          content: resumeText
-        }
+          content: resumeText,
+        },
       ],
       response_format: { type: "json_object" },
       max_completion_tokens: 4096,
@@ -133,13 +164,12 @@ Respond with a JSON object matching this structure:
 
     console.log("OpenAI API response received");
     console.log("Response status:", response.choices?.[0]?.finish_reason);
-    
+
     const result = JSON.parse(response.choices[0].message.content || "{}");
-    
+
     console.log("OpenAI raw response:", JSON.stringify(result, null, 2));
     console.log("Response has data:", Object.keys(result).length > 0);
-    
-    // Ensure the result has all required fields with defaults
+
     return {
       overallScore: result.overallScore || 0,
       scores: {
@@ -153,16 +183,6 @@ Respond with a JSON object matching this structure:
         present: result.skills?.present || [],
         missing: result.skills?.missing || [],
       },
-      resources: (result.resources || []).map((r: any) => ({
-        title: r.title || "",
-        provider: r.provider || "",
-        type: r.type || "course",
-        url: r.url || "",
-        skill: r.skill || "",
-        description: r.description || "",
-        difficulty: r.difficulty || "beginner",
-        free: r.free ?? false,
-      })),
       extractedData: result.extractedData || {
         experience: [],
         education: [],
@@ -170,7 +190,9 @@ Respond with a JSON object matching this structure:
       },
     };
   } catch (error) {
-    throw new Error(`Resume analysis failed: ${error instanceof Error ? error.message : 'Unknown error'}`);
+    throw new Error(
+      `Resume analysis failed: ${error instanceof Error ? error.message : "Unknown error"}`,
+    );
   }
 }
 
@@ -189,11 +211,11 @@ interface JobTargetedAnalysisResult {
 export async function analyzeResumeWithJob(
   resumeText: string,
   jobDescription: string,
-  targetRole?: string
+  targetRole?: string,
 ): Promise<JobTargetedAnalysisResult> {
   try {
     console.log("Starting job-targeted resume analysis with OpenAI...");
-    
+
     const response = await openai.chat.completions.create({
       model: "gpt-4o",
       messages: [
@@ -222,26 +244,28 @@ Respond with a JSON object matching this structure:
   },
   "missingSkills": [string] (skills in job description but not in resume),
   "matchingSkills": [string] (skills in both resume and job description)
-}`
+}`,
         },
         {
           role: "user",
-          content: `Job Description:\n${jobDescription}\n\n${targetRole ? `Target Role: ${targetRole}\n\n` : ''}Resume:\n${resumeText}`
-        }
+          content: `Job Description:\n${jobDescription}\n\n${targetRole ? `Target Role: ${targetRole}\n\n` : ""}Resume:\n${resumeText}`,
+        },
       ],
       response_format: { type: "json_object" },
       max_completion_tokens: 4096,
     });
 
     const result = JSON.parse(response.choices[0].message.content || "{}");
-    
+
     console.log("Job-targeted analysis completed");
-    
+
     return {
       matchScore: result.matchScore || 0,
       recommendedChanges: {
-        keywordOptimization: result.recommendedChanges?.keywordOptimization || [],
-        experienceAlignment: result.recommendedChanges?.experienceAlignment || [],
+        keywordOptimization:
+          result.recommendedChanges?.keywordOptimization || [],
+        experienceAlignment:
+          result.recommendedChanges?.experienceAlignment || [],
         skillsHighlight: result.recommendedChanges?.skillsHighlight || [],
         formatSuggestions: result.recommendedChanges?.formatSuggestions || [],
       },
@@ -249,7 +273,9 @@ Respond with a JSON object matching this structure:
       matchingSkills: result.matchingSkills || [],
     };
   } catch (error) {
-    throw new Error(`Job-targeted analysis failed: ${error instanceof Error ? error.message : 'Unknown error'}`);
+    throw new Error(
+      `Job-targeted analysis failed: ${error instanceof Error ? error.message : "Unknown error"}`,
+    );
   }
 }
 
@@ -262,25 +288,25 @@ export async function generateImprovedResume(
     skillsHighlight: string[];
     formatSuggestions: string[];
   },
-  targetRole?: string
+  targetRole?: string,
 ): Promise<string> {
   try {
     console.log("Generating improved resume with OpenAI...");
-    
+
     const changesText = [
-      'Keyword Optimization:',
+      "Keyword Optimization:",
       ...recommendedChanges.keywordOptimization.map(item => `- ${item}`),
-      '',
-      'Experience Alignment:',
+      "",
+      "Experience Alignment:",
       ...recommendedChanges.experienceAlignment.map(item => `- ${item}`),
-      '',
-      'Skills to Highlight:',
+      "",
+      "Skills to Highlight:",
       ...recommendedChanges.skillsHighlight.map(item => `- ${item}`),
-      '',
-      'Format Suggestions:',
+      "",
+      "Format Suggestions:",
       ...recommendedChanges.formatSuggestions.map(item => `- ${item}`),
-    ].join('\n');
-    
+    ].join("\n");
+
     const response = await openai.chat.completions.create({
       model: "gpt-4o",
       messages: [
@@ -297,22 +323,110 @@ IMPORTANT INSTRUCTIONS:
 - Do NOT fabricate experience, skills, or achievements
 - Keep the resume length appropriate (1-2 pages)
 
-Output the complete improved resume text in a professional format.`
+Output the complete improved resume text in a professional format.`,
         },
         {
           role: "user",
-          content: `Original Resume:\n${resumeText}\n\nJob Description:\n${jobDescription}\n\n${targetRole ? `Target Role: ${targetRole}\n\n` : ''}Recommended Changes:\n${changesText}\n\nPlease generate the improved resume incorporating these changes while keeping all information truthful and based on the candidate's actual experience.`
-        }
+          content: `Original Resume:\n${resumeText}\n\nJob Description:\n${jobDescription}\n\n${targetRole ? `Target Role: ${targetRole}\n\n` : ""}Recommended Changes:\n${changesText}\n\nPlease generate the improved resume incorporating these changes while keeping all information truthful and based on the candidate's actual experience.`,
+        },
       ],
       max_completion_tokens: 8192,
     });
 
     const improvedResume = response.choices[0].message.content || resumeText;
-    
+
     console.log("Improved resume generated successfully");
-    
+
     return improvedResume;
   } catch (error) {
-    throw new Error(`Resume generation failed: ${error instanceof Error ? error.message : 'Unknown error'}`);
+    throw new Error(
+      `Resume generation failed: ${error instanceof Error ? error.message : "Unknown error"}`,
+    );
+  }
+}
+
+export async function getRecommendedResources(
+  missingSkills: string[],
+): Promise<LearningResource[]> {
+  try {
+    console.log("Fetching recommended learning resources with OpenAI...");
+
+    const response = await openai.chat.completions.create({
+      model: "gpt-4o",
+      messages: [
+        {
+          role: "system",
+          content: `You are an expert career development advisor. Given a list of skills a candidate needs to develop, recommend real, well-known online learning resources (courses, tutorials, tools, certifications) to help them upskill.
+
+CRITICAL URL RULES — you MUST follow these strictly:
+- ONLY include a resource if you are 100% certain its URL is real, currently live, and will not return a 404.
+- Use stable, permanent URLs: platform landing pages, official documentation root pages, certification program pages, and well-established course pages that have existed for years.
+- GOOD URL patterns:
+  • Coursera professional certificates: "https://www.coursera.org/professional-certificates/google-data-analytics"
+  • Coursera specializations: "https://www.coursera.org/specializations/deep-learning"
+  • Microsoft Learn paths: "https://learn.microsoft.com/en-us/training/"
+  • freeCodeCamp curriculum: "https://www.freecodecamp.org/learn"
+  • MDN docs: "https://developer.mozilla.org/en-US/docs/Web/JavaScript"
+  • AWS Training: "https://aws.amazon.com/training/"
+  • Codecademy catalog: "https://www.codecademy.com/catalog"
+  • Official docs: "https://react.dev/", "https://docs.python.org/3/"
+- BAD URL patterns (DO NOT use):
+  • Made-up Udemy slugs you're not sure about
+  • YouTube video IDs you're guessing
+  • Course URLs with random IDs or hashes
+- If you cannot confidently provide a real URL for a skill, OMIT that resource entirely. Fewer verified resources are better than broken links.
+- Only recommend from these platforms: Coursera, edX, LinkedIn Learning, Google Skillshop, AWS Training, Microsoft Learn, freeCodeCamp, MDN Web Docs, Codecademy, Khan Academy, official language/framework documentation, and well-known certification bodies (Google, AWS, Microsoft, CompTIA).
+
+Return a JSON object with this structure:
+{
+  "resources": [
+    {
+      "title": string,
+      "provider": string,
+      "type": "course" | "tutorial" | "tool" | "certification",
+      "url": string,
+      "skill": string,
+      "description": string,
+      "difficulty": "beginner" | "intermediate" | "advanced",
+      "free": boolean
+    }
+  ]
+}`,
+        },
+        {
+          role: "user",
+          content: `Skills to Develop:\n${missingSkills.join("\n")}\n\nPlease recommend the best learning resources for each of these skills.`,
+        },
+      ],
+      response_format: { type: "json_object" },
+      max_completion_tokens: 4096,
+    });
+
+    const result = JSON.parse(response.choices[0].message.content || "{}");
+
+    const rawResources: LearningResource[] = (result.resources || [])
+      .filter((r: any) => r.url && r.title)
+      .map((r: any) => ({
+        title: r.title || "",
+        provider: r.provider || "",
+        type: r.type || "course",
+        url: r.url || "",
+        skill: r.skill || "",
+        description: r.description || "",
+        difficulty: r.difficulty || "beginner",
+        free: r.free ?? false,
+      }));
+
+    console.log(`Verifying ${rawResources.length} resource URLs...`);
+    const verifiedResources = await filterValidResources(rawResources);
+    console.log(
+      `${verifiedResources.length}/${rawResources.length} resource URLs verified as live`,
+    );
+
+    return verifiedResources;
+  } catch (error) {
+    throw new Error(
+      `Resource recommendation failed: ${error instanceof Error ? error.message : "Unknown error"}`,
+    );
   }
 }

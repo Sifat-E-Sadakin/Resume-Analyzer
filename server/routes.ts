@@ -3,7 +3,7 @@ import { createServer, type Server } from "http";
 import multer from "multer";
 import { storage } from "./storage";
 import { parseDocument } from "./lib/documentParser";
-import { analyzeResume, analyzeResumeWithJob, generateImprovedResume } from "./lib/openai";
+import { analyzeResume, analyzeResumeWithJob, generateImprovedResume, getRecommendedResources } from "./lib/openai";
 import { insertResumeSchema, insertAnalysisSchema, insertPortfolioSchema, insertJobApplicationSchema } from "../shared/schema";
 
 const upload = multer({ 
@@ -70,7 +70,6 @@ export async function registerRoutes(app: Express): Promise<Server> {
           scores: analysisResult.scores,
           feedback: analysisResult.feedback,
           skills: analysisResult.skills,
-          resources: analysisResult.resources,
         },
         extractedData: analysisResult.extractedData,
         jobApplication: jobApplication ? {
@@ -210,6 +209,26 @@ export async function registerRoutes(app: Express): Promise<Server> {
       console.error("Generate improved resume error:", error);
       res.status(500).json({ 
         error: error instanceof Error ? error.message : "Failed to generate improved resume" 
+      });
+    }
+  });
+
+  // Generate learning resources on demand
+  app.post("/api/resources", async (req, res) => {
+    try {
+      const { missingSkills } = req.body;
+
+      if (!Array.isArray(missingSkills) || missingSkills.length === 0) {
+        return res.status(400).json({ error: "Please provide a list of skills to find resources for." });
+      }
+
+      const resources = await getRecommendedResources(missingSkills);
+
+      res.json({ resources });
+    } catch (error) {
+      console.error("Get resources error:", error);
+      res.status(500).json({
+        error: error instanceof Error ? error.message : "Failed to get learning resources",
       });
     }
   });

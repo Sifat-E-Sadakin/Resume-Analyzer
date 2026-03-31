@@ -16,11 +16,7 @@ import {
   Briefcase,
   Sparkles,
   Loader2,
-  BookOpen,
   GraduationCap,
-  Wrench,
-  BadgeCheck,
-  ExternalLink,
 } from "lucide-react";
 import { useLocation } from "wouter";
 import {
@@ -30,17 +26,6 @@ import {
   AccordionTrigger,
 } from "@/components/ui/accordion";
 import { useToast } from "@/hooks/use-toast";
-
-interface LearningResource {
-  title: string;
-  provider: string;
-  type: "course" | "tutorial" | "tool" | "certification";
-  url: string;
-  skill: string;
-  description: string;
-  difficulty: "beginner" | "intermediate" | "advanced";
-  free: boolean;
-}
 
 interface AnalysisData {
   resumeId: string;
@@ -63,7 +48,6 @@ interface AnalysisData {
       present: string[];
       missing: string[];
     };
-    resources: LearningResource[];
   };
   extractedData: any;
   jobApplication?: {
@@ -79,122 +63,6 @@ interface AnalysisData {
     };
     improvedResumeContent?: string;
   };
-}
-
-const resourceTypeConfig = {
-  course: { icon: BookOpen, label: "Course", color: "text-blue-500" },
-  tutorial: { icon: FileText, label: "Tutorial", color: "text-emerald-500" },
-  tool: { icon: Wrench, label: "Tool", color: "text-orange-500" },
-  certification: {
-    icon: BadgeCheck,
-    label: "Certification",
-    color: "text-purple-500",
-  },
-} as const;
-
-const difficultyColor = {
-  beginner:
-    "bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400",
-  intermediate:
-    "bg-yellow-100 text-yellow-700 dark:bg-yellow-900/30 dark:text-yellow-400",
-  advanced: "bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-400",
-} as const;
-
-function ResourceFilterTabs({ resources }: { resources: LearningResource[] }) {
-  const [activeFilter, setActiveFilter] = useState<
-    "all" | LearningResource["type"]
-  >("all");
-
-  const types = ["all", "course", "tutorial", "tool", "certification"] as const;
-  const filtered =
-    activeFilter === "all"
-      ? resources
-      : resources.filter(r => r.type === activeFilter);
-
-  return (
-    <div className="space-y-5">
-      <div className="flex flex-wrap gap-2">
-        {types.map(t => {
-          const count =
-            t === "all"
-              ? resources.length
-              : resources.filter(r => r.type === t).length;
-          if (t !== "all" && count === 0) return null;
-          return (
-            <Button
-              key={t}
-              variant={activeFilter === t ? "default" : "outline"}
-              size="sm"
-              onClick={() => setActiveFilter(t)}
-              className="capitalize">
-              {t === "all" ? "All" : resourceTypeConfig[t].label}
-              <Badge variant="secondary" className="ml-1.5 text-xs px-1.5 py-0">
-                {count}
-              </Badge>
-            </Button>
-          );
-        })}
-      </div>
-
-      <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
-        {filtered.map((resource, idx) => {
-          const config = resourceTypeConfig[resource.type];
-          const TypeIcon = config.icon;
-          return (
-            <a
-              key={idx}
-              href={resource.url}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="group block"
-              data-testid={`resource-card-${idx}`}>
-              <div className="h-full border rounded-lg p-4 transition-all hover:border-primary/50 hover:shadow-md hover:shadow-primary/5 space-y-3">
-                <div className="flex items-start justify-between gap-2">
-                  <div className="flex items-center gap-2">
-                    <TypeIcon
-                      className={`w-4 h-4 flex-shrink-0 ${config.color}`}
-                    />
-                    <span className="text-xs font-medium text-muted-foreground uppercase tracking-wide">
-                      {config.label}
-                    </span>
-                  </div>
-                  <ExternalLink className="w-3.5 h-3.5 text-muted-foreground opacity-0 group-hover:opacity-100 transition-opacity flex-shrink-0" />
-                </div>
-
-                <div>
-                  <h4 className="font-medium text-sm leading-snug group-hover:text-primary transition-colors">
-                    {resource.title}
-                  </h4>
-                  <p className="text-xs text-muted-foreground mt-1">
-                    {resource.provider}
-                  </p>
-                </div>
-
-                <p className="text-xs text-muted-foreground leading-relaxed line-clamp-2">
-                  {resource.description}
-                </p>
-
-                <div className="flex flex-wrap items-center gap-2 pt-1">
-                  <Badge variant="outline" className="text-xs px-1.5 py-0">
-                    {resource.skill}
-                  </Badge>
-                  <span
-                    className={`text-[10px] font-medium px-1.5 py-0.5 rounded-full capitalize ${difficultyColor[resource.difficulty]}`}>
-                    {resource.difficulty}
-                  </span>
-                  {resource.free && (
-                    <span className="text-[10px] font-semibold px-1.5 py-0.5 rounded-full bg-primary/10 text-primary">
-                      Free
-                    </span>
-                  )}
-                </div>
-              </div>
-            </a>
-          );
-        })}
-      </div>
-    </div>
-  );
 }
 
 export default function AnalysisDashboard() {
@@ -233,6 +101,14 @@ export default function AnalysisDashboard() {
   console.log("resumeId:", resumeId);
   console.log("extractedData:", extractedData);
   console.log("==============================");
+
+  const handleGetResources = () => {
+    sessionStorage.setItem(
+      "resourcesContext",
+      JSON.stringify({ skills: analysis.skills }),
+    );
+    setLocation("/learning-resources");
+  };
 
   const handleGeneratePortfolio = () => {
     sessionStorage.setItem(
@@ -349,6 +225,13 @@ export default function AnalysisDashboard() {
               )}
             </Button>
           )}
+          <Button
+            onClick={handleGetResources}
+            variant="outline"
+            data-testid="button-get-resources">
+            <GraduationCap className="mr-2 w-4 h-4" />
+            Get Learning Resources
+          </Button>
           <Button
             onClick={handleGeneratePortfolio}
             data-testid="button-generate-portfolio">
@@ -534,23 +417,6 @@ export default function AnalysisDashboard() {
           </div>
         </div>
       </Card>
-
-      {(analysis.resources || []).length > 0 && (
-        <Card className="p-6">
-          <h2
-            className="text-xl font-semibold mb-2 flex items-center gap-2"
-            data-testid="text-resources-heading">
-            <GraduationCap className="w-5 h-5 text-primary" />
-            Recommended Learning Resources
-          </h2>
-          <p className="text-sm text-muted-foreground mb-6">
-            Curated courses, tutorials, tools, and certifications to help you
-            level up
-          </p>
-
-          <ResourceFilterTabs resources={analysis.resources} />
-        </Card>
-      )}
 
       <div>
         <h2
