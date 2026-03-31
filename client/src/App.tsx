@@ -11,6 +11,7 @@ const Upload = lazy(() => import("@/pages/Upload"));
 const Analysis = lazy(() => import("@/pages/Analysis"));
 const Templates = lazy(() => import("@/pages/Templates"));
 const ImprovedResume = lazy(() => import("@/pages/ImprovedResume"));
+const LearningResources = lazy(() => import("@/pages/LearningResources"));
 const PortfolioPreviewPage = lazy(() => import("@/pages/PortfolioPreviewPage"));
 const SharedPortfolioPage = lazy(() => import("@/pages/SharedPortfolioPage"));
 
@@ -22,6 +23,7 @@ function Router() {
       <Route path="/analysis" component={Analysis} />
       <Route path="/templates" component={Templates} />
       <Route path="/improved-resume" component={ImprovedResume} />
+      <Route path="/learning-resources" component={LearningResources} />
       <Route path="/portfolio-preview" component={PortfolioPreviewPage} />
       <Route path="/portfolio/:id" component={SharedPortfolioPage} />
       <Route component={NotFound} />
