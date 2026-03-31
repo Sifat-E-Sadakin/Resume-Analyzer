@@ -3,6 +3,17 @@ import OpenAI from "openai";
 // Using gpt-4o which is OpenAI's latest and most capable model
 const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
 
+interface LearningResource {
+  title: string;
+  provider: string;
+  type: "course" | "tutorial" | "tool" | "certification";
+  url: string;
+  skill: string;
+  description: string;
+  difficulty: "beginner" | "intermediate" | "advanced";
+  free: boolean;
+}
+
 interface ResumeAnalysisResult {
   overallScore: number;
   scores: {
@@ -21,6 +32,7 @@ interface ResumeAnalysisResult {
     present: string[];
     missing: string[];
   };
+  resources: LearningResource[];
   extractedData: {
     name?: string;
     title?: string;
@@ -62,6 +74,7 @@ export async function analyzeResume(resumeText: string): Promise<ResumeAnalysisR
 4. Actionable suggestions for improvement
 5. Skills analysis (present skills and recommended missing skills for modern job market)
 6. Extracted structured data (name, title, contact, experience, education, projects)
+7. Recommended learning resources — for each missing or weak skill, suggest real, well-known online courses, tutorials, tools, or certifications that can help the candidate upskill. Only recommend resources from reputable platforms (Coursera, Udemy, LinkedIn Learning, Google, AWS, Microsoft, freeCodeCamp, MDN, official docs, YouTube channels, etc.). Provide direct URLs when possible.
 
 Be honest, constructive, and specific. Focus on helping the candidate improve their resume to land better opportunities.
 
@@ -86,6 +99,18 @@ Respond with a JSON object matching this structure:
     "present": [string],
     "missing": [string]
   },
+  "resources": [
+    {
+      "title": string (name of the course/tutorial/tool/certification),
+      "provider": string (e.g. "Coursera", "Udemy", "Google", "AWS", "freeCodeCamp"),
+      "type": "course" | "tutorial" | "tool" | "certification",
+      "url": string (direct link to the resource),
+      "skill": string (the skill this resource helps develop),
+      "description": string (one-sentence summary of what the learner will gain),
+      "difficulty": "beginner" | "intermediate" | "advanced",
+      "free": boolean
+    }
+  ],
   "extractedData": {
     "name": string,
     "title": string,
@@ -128,6 +153,16 @@ Respond with a JSON object matching this structure:
         present: result.skills?.present || [],
         missing: result.skills?.missing || [],
       },
+      resources: (result.resources || []).map((r: any) => ({
+        title: r.title || "",
+        provider: r.provider || "",
+        type: r.type || "course",
+        url: r.url || "",
+        skill: r.skill || "",
+        description: r.description || "",
+        difficulty: r.difficulty || "beginner",
+        free: r.free ?? false,
+      })),
       extractedData: result.extractedData || {
         experience: [],
         education: [],

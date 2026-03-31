@@ -70,6 +70,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
           scores: analysisResult.scores,
           feedback: analysisResult.feedback,
           skills: analysisResult.skills,
+          resources: analysisResult.resources,
         },
         extractedData: analysisResult.extractedData,
         jobApplication: jobApplication ? {
