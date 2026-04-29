@@ -1,4 +1,3 @@
-import { Button } from "@/components/ui/button";
 import {
   ArrowRight,
   Sparkles,
@@ -15,7 +14,7 @@ import { useLocation } from "wouter";
 import { motion, AnimatePresence, useMotionValue, useTransform } from "framer-motion";
 import { useState, useEffect, useCallback, useRef } from "react";
 
-const rotatingWords = ["AI Intelligence", "Smart Insights", "Career Growth", "Portfolio Magic"];
+const rotatingWords = ["a coach's eye.", "analytical precision.", "clarity.", "care."];
 
 function useRotatingText(words: string[], intervalMs = 3000) {
   const [index, setIndex] = useState(0);
@@ -27,7 +26,7 @@ function useRotatingText(words: string[], intervalMs = 3000) {
 }
 
 const floatingCards = [
-  { icon: BarChart3, label: "ATS Score: 92%", color: "text-chart-1", delay: 0 },
+  { icon: BarChart3, label: "ATS Score · 92", color: "text-primary", delay: 0 },
   { icon: CheckCircle2, label: "Strong Keywords", color: "text-chart-3", delay: 0.8 },
   { icon: Globe, label: "Portfolio Ready", color: "text-chart-2", delay: 1.6 },
   { icon: TrendingUp, label: "Top 15%", color: "text-chart-4", delay: 2.4 },
@@ -111,36 +110,31 @@ export default function Hero() {
 
   return (
     <section
-      className="relative min-h-[92vh] flex items-center justify-center overflow-hidden py-20 px-6"
+      className="relative min-h-[92vh] flex items-center justify-center overflow-hidden py-24 px-6 bg-studio-paper"
       onMouseMove={handleMouseMove}
     >
-      {/* Animated background orbs */}
+      {/* Soft warm wash — calm, editorial */}
       <div className="absolute inset-0 pointer-events-none overflow-hidden">
         <motion.div
-          className="absolute -top-32 -left-32 w-[500px] h-[500px] rounded-full bg-primary/8 blur-[100px]"
+          className="absolute -top-40 -left-40 w-[520px] h-[520px] rounded-full bg-primary/10 blur-[120px]"
           style={{ x: orbX, y: orbY }}
-          animate={{ scale: [1, 1.15, 1], opacity: [0.5, 0.8, 0.5] }}
-          transition={{ duration: 8, repeat: Infinity, ease: "easeInOut" }}
-        />
-        <motion.div
-          className="absolute -bottom-48 -right-32 w-[600px] h-[600px] rounded-full bg-chart-2/8 blur-[120px]"
-          style={{ x: useTransform(orbX, (v) => -v), y: useTransform(orbY, (v) => -v) }}
-          animate={{ scale: [1.1, 1, 1.1], opacity: [0.4, 0.7, 0.4] }}
+          animate={{ opacity: [0.4, 0.6, 0.4] }}
           transition={{ duration: 10, repeat: Infinity, ease: "easeInOut" }}
         />
         <motion.div
-          className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[400px] h-[400px] rounded-full bg-chart-3/5 blur-[100px]"
-          animate={{ scale: [1, 1.2, 1], opacity: [0.3, 0.5, 0.3] }}
+          className="absolute -bottom-56 -right-40 w-[620px] h-[620px] rounded-full bg-chart-2/6 blur-[140px]"
+          style={{ x: useTransform(orbX, (v) => -v), y: useTransform(orbY, (v) => -v) }}
+          animate={{ opacity: [0.3, 0.5, 0.3] }}
           transition={{ duration: 12, repeat: Infinity, ease: "easeInOut" }}
         />
       </div>
 
-      {/* Grid pattern overlay */}
+      {/* Paper grain: fine dot grid, low contrast */}
       <div
-        className="absolute inset-0 pointer-events-none opacity-[0.03]"
+        className="absolute inset-0 pointer-events-none opacity-[0.05]"
         style={{
           backgroundImage: `radial-gradient(circle, hsl(var(--foreground)) 1px, transparent 1px)`,
-          backgroundSize: "32px 32px",
+          backgroundSize: "28px 28px",
         }}
       />
 
@@ -155,54 +149,50 @@ export default function Hero() {
           <div className="space-y-8">
             <motion.div variants={fadeUp}>
               <motion.div
-                className="inline-flex items-center gap-2 px-4 py-2 bg-primary/10 border border-primary/20 rounded-full backdrop-blur-sm"
-                whileHover={{ scale: 1.05 }}
+                className="inline-flex items-center gap-2 px-3 py-1.5 bg-card border border-border rounded-full"
+                whileHover={{ scale: 1.03 }}
                 whileTap={{ scale: 0.98 }}
               >
-                <motion.div
-                  animate={{ rotate: [0, 15, -15, 0] }}
-                  transition={{ duration: 2, repeat: Infinity, ease: "easeInOut" }}
-                >
-                  <Sparkles className="w-4 h-4 text-primary" />
-                </motion.div>
-                <span className="text-sm font-medium text-primary" data-testid="text-hero-badge">
-                  Powered by GPT-4o
+                <Sparkles className="w-3.5 h-3.5 text-primary" />
+                <span className="text-[11px] uppercase tracking-[0.14em] font-medium text-foreground/70" data-testid="text-hero-badge">
+                  The Resume · Studio Edition
                 </span>
-                <span className="relative flex h-2 w-2">
-                  <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-chart-3 opacity-75" />
-                  <span className="relative inline-flex rounded-full h-2 w-2 bg-chart-3" />
+                <span className="relative flex h-1.5 w-1.5">
+                  <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-primary opacity-60" />
+                  <span className="relative inline-flex rounded-full h-1.5 w-1.5 bg-primary" />
                 </span>
               </motion.div>
             </motion.div>
 
             <motion.h1
-              className="text-5xl lg:text-7xl font-bold leading-[1.1] tracking-tight"
+              className="font-serif font-normal tracking-tight text-foreground"
+              style={{
+                fontSize: "clamp(3rem, 6.4vw, 5.25rem)",
+                lineHeight: 1.02,
+                letterSpacing: "-0.02em",
+              }}
               data-testid="text-hero-heading"
               variants={fadeUp}
             >
-              Transform Your
+              Your resume,
               <br />
-              Resume with{" "}
-              <span className="relative inline-block">
+              read with{" "}
+              <span className="relative inline-block align-baseline">
                 <AnimatePresence mode="wait">
                   <motion.span
                     key={currentWord}
-                    className="bg-gradient-to-r from-primary via-chart-2 to-chart-5 bg-clip-text text-transparent bg-[length:200%_auto]"
-                    initial={{ opacity: 0, y: 20, filter: "blur(8px)" }}
-                    animate={{
-                      opacity: 1,
-                      y: 0,
-                      filter: "blur(0px)",
-                      backgroundPosition: ["0% center", "100% center"],
-                    }}
-                    exit={{ opacity: 0, y: -20, filter: "blur(8px)" }}
-                    transition={{ duration: 0.5, backgroundPosition: { duration: 3, ease: "linear" } }}
+                    className="italic text-primary"
+                    style={{ willChange: "opacity", display: "inline-block" }}
+                    initial={{ opacity: 0, y: 6 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    exit={{ opacity: 0, y: -6 }}
+                    transition={{ duration: 0.4, ease: "easeInOut" }}
                   >
                     {currentWord}
                   </motion.span>
                 </AnimatePresence>
                 <motion.span
-                  className="absolute -bottom-2 left-0 h-1 bg-gradient-to-r from-primary to-chart-2 rounded-full"
+                  className="absolute -bottom-1 left-0 h-[2px] bg-primary/70"
                   initial={{ width: "0%" }}
                   animate={{ width: "100%" }}
                   transition={{ delay: 0.8, duration: 0.8, ease: "easeOut" }}
@@ -211,83 +201,78 @@ export default function Hero() {
             </motion.h1>
 
             <motion.p
-              className="text-lg lg:text-xl text-muted-foreground leading-relaxed max-w-xl"
+              className="text-lg lg:text-xl text-muted-foreground max-w-xl"
+              style={{ lineHeight: 1.55 }}
               data-testid="text-hero-subheading"
               variants={fadeUp}
             >
-              Get instant AI-powered feedback on your resume and automatically generate a
-              professional portfolio website. Stand out in your job search with data-driven insights.
+              A careful, line-by-line review — then a portfolio that reads like it
+              was written for you. Not a template with your name dropped in.
             </motion.p>
 
-            <motion.div className="flex flex-wrap gap-4" variants={fadeUp}>
-              <motion.div
-                whileHover={{ scale: 1.04 }}
-                whileTap={{ scale: 0.97 }}
+            <motion.div className="flex flex-wrap gap-3 pt-2" variants={fadeUp}>
+              <motion.button
+                type="button"
                 onHoverStart={() => setIsHoveringCta(true)}
                 onHoverEnd={() => setIsHoveringCta(false)}
+                onClick={() => navigate("/upload")}
+                whileTap={{ scale: 0.98 }}
+                whileHover={{ y: -1 }}
+                className="group inline-flex items-center justify-center gap-2 rounded-full bg-primary hover:bg-primary/90 text-primary-foreground px-7 h-12 text-[15px] font-medium shadow-brand-sm hover:shadow-brand-md transition-all duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-primary"
+                data-testid="button-analyze-resume"
               >
-                <Button
-                  size="lg"
-                  className="relative px-8 py-6 text-base font-semibold overflow-hidden group"
-                  data-testid="button-analyze-resume"
-                  onClick={() => navigate("/upload")}
+                <Upload className="w-4 h-4" />
+                <span>Analyze my resume</span>
+                <motion.span
+                  animate={{ x: isHoveringCta ? 4 : 0 }}
+                  transition={{ type: "spring", stiffness: 300 }}
+                  className="inline-flex"
                 >
-                  <span className="absolute inset-0 bg-gradient-to-r from-primary via-chart-2 to-primary bg-[length:200%_100%] group-hover:animate-[shimmer_1.5s_ease-in-out_infinite] opacity-0 group-hover:opacity-100 transition-opacity" />
-                  <span className="relative flex items-center gap-2">
-                    <Upload className="w-5 h-5" />
-                    Analyze Your Resume
-                    <motion.span animate={{ x: isHoveringCta ? 4 : 0 }} transition={{ type: "spring", stiffness: 300 }}>
-                      <ArrowRight className="w-5 h-5" />
-                    </motion.span>
-                  </span>
-                </Button>
-              </motion.div>
-              <motion.div whileHover={{ scale: 1.04 }} whileTap={{ scale: 0.97 }}>
-                <Button
-                  size="lg"
-                  variant="outline"
-                  className="px-8 py-6 text-base font-semibold backdrop-blur-sm"
-                  onClick={() => {
-                    document.getElementById("how-it-works")?.scrollIntoView({ behavior: "smooth" });
-                  }}
-                >
-                  <Zap className="w-5 h-5 mr-2" />
-                  See How It Works
-                </Button>
-              </motion.div>
+                  <ArrowRight className="w-4 h-4" />
+                </motion.span>
+              </motion.button>
+              <motion.button
+                type="button"
+                onClick={() => {
+                  document.getElementById("how-it-works")?.scrollIntoView({ behavior: "smooth" });
+                }}
+                whileTap={{ scale: 0.98 }}
+                whileHover={{ y: -1 }}
+                className="inline-flex items-center justify-center gap-2 rounded-full bg-transparent hover:bg-card text-foreground px-7 h-12 text-[15px] font-medium border border-foreground/20 transition-all duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-primary"
+              >
+                <Zap className="w-4 h-4" />
+                <span>See how it works</span>
+              </motion.button>
             </motion.div>
 
             <motion.div
-              className="flex flex-wrap items-center gap-6 pt-2 text-sm text-muted-foreground"
+              className="flex flex-wrap items-center gap-x-5 gap-y-2 pt-1 text-[13px] text-muted-foreground"
               variants={fadeUp}
             >
               {[
-                { icon: Shield, text: "Privacy-First" },
-                { icon: Zap, text: "Free Analysis" },
-                { icon: CheckCircle2, text: "Instant Results" },
-              ].map(({ icon: Icon, text }) => (
-                <motion.div
-                  key={text}
-                  className="flex items-center gap-2"
-                  whileHover={{ scale: 1.08, color: "hsl(var(--primary))" }}
-                >
-                  <Icon className="w-4 h-4 text-chart-3" />
+                { icon: Shield, text: "Private by default" },
+                { icon: Zap, text: "Free analysis" },
+                { icon: CheckCircle2, text: "Results in ~30s" },
+              ].map(({ icon: Icon, text }, idx, arr) => (
+                <div key={text} className="inline-flex items-center gap-2">
+                  <Icon className="w-3.5 h-3.5 text-primary" />
                   <span>{text}</span>
-                </motion.div>
+                  {idx < arr.length - 1 && <span className="text-foreground/20">·</span>}
+                </div>
               ))}
             </motion.div>
 
-            {/* Stats row */}
+            {/* Stats row — editorial rule */}
             <motion.div
-              className="grid grid-cols-3 gap-6 pt-4 border-t border-border/50"
+              className="grid grid-cols-3 gap-x-8 sm:gap-x-12 lg:gap-x-16 pt-8 mt-2 border-t border-foreground/15"
               variants={fadeUp}
             >
               {stats.map((stat) => (
-                <div key={stat.label} className="text-center lg:text-left">
-                  <div className="text-2xl lg:text-3xl font-bold text-foreground">
+                <div key={stat.label} className="text-left pt-6">
+                  <div className="font-serif text-4xl lg:text-5xl leading-none text-foreground">
                     <AnimatedCounter value={stat.value} suffix={stat.suffix} />
                   </div>
-                  <div className="text-xs text-muted-foreground mt-1">{stat.label}</div>
+                  <div className="text-[12px] uppercase tracking-[0.14em] text-muted-foreground mt-3">{stat.label}</div>
                 </div>
               ))}
             </motion.div>
@@ -295,7 +280,7 @@ export default function Hero() {
 
           {/* Right interactive area */}
           <motion.div
-            className="relative hidden lg:flex items-center justify-center"
+            className="relative hidden lg:flex items-center justify-center px-12 py-8"
             variants={fadeUp}
           >
             {/* Main card */}
@@ -306,18 +291,18 @@ export default function Hero() {
               transition={{ duration: 1, delay: 0.5, ease: "easeOut" }}
               style={{ perspective: 1000 }}
             >
-              <div className="rounded-2xl border border-border/60 bg-card/80 backdrop-blur-xl p-6 shadow-lg">
-                {/* Mock header */}
-                <div className="flex items-center gap-3 mb-6">
-                  <div className="w-10 h-10 rounded-xl bg-primary/15 flex items-center justify-center">
+              <div className="rounded-[28px] border border-foreground/15 bg-card p-7 shadow-brand-md">
+                {/* Editorial header — file + live */}
+                <div className="flex items-center gap-3 mb-7 pb-5 border-b border-foreground/10">
+                  <div className="w-11 h-11 rounded-full bg-primary/12 flex items-center justify-center">
                     <FileText className="w-5 h-5 text-primary" />
                   </div>
-                  <div>
-                    <div className="text-sm font-semibold">Resume Analysis</div>
-                    <div className="text-xs text-muted-foreground">john_doe_resume.pdf</div>
+                  <div className="flex-1 min-w-0">
+                    <div className="font-serif text-lg leading-tight text-foreground">Resume, reviewed</div>
+                    <div className="text-[12px] text-muted-foreground mt-0.5 font-mono">john_doe_resume.pdf</div>
                   </div>
                   <motion.div
-                    className="ml-auto px-3 py-1 rounded-full bg-chart-3/15 text-chart-3 text-xs font-semibold"
+                    className="px-2.5 py-1 rounded-full border border-primary/30 text-primary text-[10px] uppercase tracking-[0.14em] font-medium"
                     animate={{ opacity: [0.7, 1, 0.7] }}
                     transition={{ duration: 2, repeat: Infinity }}
                   >
@@ -325,61 +310,58 @@ export default function Hero() {
                   </motion.div>
                 </div>
 
-                {/* Animated progress bar */}
-                <div className="space-y-4">
+                {/* Overall score — oversized serif numeral */}
+                <div className="flex items-end justify-between mb-7">
                   <div>
-                    <div className="flex justify-between text-xs mb-2">
-                      <span className="text-muted-foreground">Overall Score</span>
-                      <span className="font-semibold text-chart-3">92/100</span>
-                    </div>
-                    <div className="h-2.5 rounded-full bg-muted overflow-hidden">
-                      <motion.div
-                        className="h-full rounded-full bg-gradient-to-r from-chart-3 to-chart-1"
-                        initial={{ width: "0%" }}
-                        animate={{ width: "92%" }}
-                        transition={{ delay: 1.2, duration: 1.5, ease: "easeOut" }}
-                      />
+                    <div className="text-[11px] uppercase tracking-[0.14em] text-muted-foreground">Overall</div>
+                    <div className="font-serif text-[64px] leading-none text-foreground mt-1">
+                      92<span className="text-muted-foreground text-2xl align-top ml-1">/100</span>
                     </div>
                   </div>
+                  <div className="text-right text-[12px] text-muted-foreground leading-tight max-w-[44%]">
+                    Strong on impact &amp; structure.<br />
+                    <span className="italic">A few keywords to tighten.</span>
+                  </div>
+                </div>
 
-                  {/* Skill bars */}
+                {/* Dimension bars — ink rail, terracotta fill */}
+                <div className="space-y-3.5">
                   {[
-                    { label: "ATS Compatibility", score: 88, color: "from-chart-1 to-primary" },
-                    { label: "Keyword Optimization", score: 76, color: "from-chart-2 to-chart-5" },
-                    { label: "Impact Statements", score: 95, color: "from-chart-3 to-chart-4" },
+                    { label: "ATS compatibility", score: 88 },
+                    { label: "Keyword coverage", score: 76 },
+                    { label: "Impact statements", score: 95 },
                   ].map((skill, i) => (
                     <div key={skill.label}>
-                      <div className="flex justify-between text-xs mb-1.5">
-                        <span className="text-muted-foreground">{skill.label}</span>
-                        <span className="font-medium">{skill.score}%</span>
+                      <div className="flex justify-between text-[12px] mb-1.5">
+                        <span className="text-foreground/75">{skill.label}</span>
+                        <span className="font-mono text-foreground">{skill.score}</span>
                       </div>
-                      <div className="h-1.5 rounded-full bg-muted overflow-hidden">
+                      <div className="h-[3px] bg-foreground/10 overflow-hidden rounded-full">
                         <motion.div
-                          className={`h-full rounded-full bg-gradient-to-r ${skill.color}`}
+                          className="h-full bg-primary rounded-full"
                           initial={{ width: "0%" }}
                           animate={{ width: `${skill.score}%` }}
-                          transition={{ delay: 1.6 + i * 0.3, duration: 1, ease: "easeOut" }}
+                          transition={{ delay: 0.6 + i * 0.15, duration: 0.8, ease: "easeOut" }}
                         />
                       </div>
                     </div>
                   ))}
                 </div>
 
-                {/* Mock suggestions */}
-                <div className="mt-5 space-y-2">
+                {/* Notes — like a coach's margin comments */}
+                <div className="mt-6 space-y-2.5">
                   {[
-                    "Add measurable achievements to experience",
-                    "Include relevant industry keywords",
+                    "Lead each bullet with measurable outcomes.",
+                    "Weave in two missing terms: 'ETL', 'stakeholder'.",
                   ].map((tip, i) => (
                     <motion.div
                       key={tip}
-                      className="flex items-start gap-2 text-xs text-muted-foreground p-2 rounded-lg bg-muted/50"
+                      className="flex items-start gap-2.5 text-[13px] text-foreground/80 pl-3 border-l-2 border-primary/40"
                       initial={{ opacity: 0, x: -10 }}
                       animate={{ opacity: 1, x: 0 }}
-                      transition={{ delay: 2.5 + i * 0.2 }}
+                      transition={{ delay: 1.4 + i * 0.2 }}
                     >
-                      <CheckCircle2 className="w-3.5 h-3.5 text-chart-3 mt-0.5 shrink-0" />
-                      <span>{tip}</span>
+                      <span className="italic font-serif">{tip}</span>
                     </motion.div>
                   ))}
                 </div>
@@ -389,17 +371,17 @@ export default function Hero() {
             {/* Floating cards */}
             {floatingCards.map((card, i) => {
               const positions = [
-                { top: "2%", right: "-8%", rotate: 6 },
-                { bottom: "8%", right: "-12%", rotate: -4 },
-                { top: "18%", left: "-14%", rotate: -6 },
-                { bottom: "22%", left: "-10%", rotate: 4 },
+                { top: "4%", right: "-4%", rotate: 6 },
+                { bottom: "10%", right: "-6%", rotate: -4 },
+                { top: "18%", left: "-6%", rotate: -6 },
+                { bottom: "22%", left: "-4%", rotate: 4 },
               ];
               const pos = positions[i];
               return (
                 <motion.div
                   key={card.label}
-                  className="absolute flex items-center gap-2 px-3 py-2 rounded-xl border border-border/60 bg-card/90 backdrop-blur-lg shadow-md text-xs font-medium"
-                  style={pos}
+                  className="absolute flex items-center gap-2 px-3 py-1.5 rounded-full border border-foreground/15 bg-card shadow-brand-sm text-[12px] font-medium"
+                  style={{ ...pos, willChange: "transform" }}
                   initial={{ opacity: 0, scale: 0.8 }}
                   animate={{
                     opacity: 1,
@@ -411,7 +393,7 @@ export default function Hero() {
                     scale: { delay: 1.5 + card.delay * 0.4, duration: 0.5 },
                     y: {
                       delay: 2 + card.delay * 0.4,
-                      duration: 3 + i * 0.5,
+                      duration: 3,
                       repeat: Infinity,
                       ease: "easeInOut",
                     },

@@ -34,3 +34,17 @@ lerna-debug.log*
 # OS
 .DS_Store
 Thumbs.db
+
+# Academic report (LaTeX build artifacts and source)
+Academic_Report.*
+*.aux
+*.lof
+*.lot
+*.out
+*.toc
+*.synctex.gz
+*.fls
+*.fdb_latexmk
+*.bbl
+*.blg
+*.run.xml

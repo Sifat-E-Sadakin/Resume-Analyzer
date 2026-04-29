@@ -84,8 +84,17 @@ export default {
       },
       fontFamily: {
         sans: ["Inter", "system-ui", "sans-serif"],
-        serif: ["Georgia", "serif"],
+        serif: ['"Instrument Serif"', "Georgia", "serif"],
         mono: ["JetBrains Mono", "monospace"],
+      },
+      backgroundImage: {
+        "brand-gradient": "linear-gradient(135deg, #C85C3D 0%, #8C3A2A 100%)",
+        "studio-paper":
+          "radial-gradient(1200px 600px at 10% -10%, rgba(200,92,61,0.06), transparent 60%), radial-gradient(900px 500px at 100% 0%, rgba(26,22,18,0.05), transparent 55%)",
+      },
+      boxShadow: {
+        "brand-sm": "0 1px 2px rgba(26,22,18,0.05)",
+        "brand-md": "0 10px 30px rgba(26,22,18,0.08)",
       },
       keyframes: {
         "accordion-down": {
@@ -100,11 +109,16 @@ export default {
           "0%": { backgroundPosition: "200% 0" },
           "100%": { backgroundPosition: "-200% 0" },
         },
+        "chip-float": {
+          "0%, 100%": { transform: "translateY(0)" },
+          "50%": { transform: "translateY(-6px)" },
+        },
       },
       animation: {
         "accordion-down": "accordion-down 0.2s ease-out",
         "accordion-up": "accordion-up 0.2s ease-out",
         shimmer: "shimmer 1.5s ease-in-out infinite",
+        "chip-float": "chip-float 3s ease-in-out infinite",
       },
     },
   },
