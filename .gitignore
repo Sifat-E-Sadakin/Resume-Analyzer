@@ -35,6 +35,11 @@ lerna-debug.log*
 .DS_Store
 Thumbs.db
 
+# Claude Code instructions and presentation
+CLAUDE.md
+*.pptx
+Presentation_Script.md
+
 # Academic report (LaTeX build artifacts and source)
 Academic_Report.*
 *.aux

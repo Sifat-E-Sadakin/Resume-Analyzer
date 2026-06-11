@@ -194,10 +194,10 @@ export default function AnalysisDashboard() {
           </p>
         </div>
         <div className="flex flex-wrap gap-3">
-          <Button variant="outline" data-testid="button-download-report">
+          {/* <Button variant="outline" data-testid="button-download-report">
             <Download className="mr-2 w-4 h-4" />
             Download Report
-          </Button>
+          </Button> */}
           {analysisData.jobApplication && (
             <Button
               onClick={handleGenerateImprovedResume}

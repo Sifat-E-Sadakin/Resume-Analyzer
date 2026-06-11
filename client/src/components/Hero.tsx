@@ -11,15 +11,28 @@ import {
   TrendingUp,
 } from "lucide-react";
 import { useLocation } from "wouter";
-import { motion, AnimatePresence, useMotionValue, useTransform } from "framer-motion";
+import {
+  motion,
+  AnimatePresence,
+  useMotionValue,
+  useTransform,
+} from "framer-motion";
 import { useState, useEffect, useCallback, useRef } from "react";
 
-const rotatingWords = ["a coach's eye.", "analytical precision.", "clarity.", "care."];
+const rotatingWords = [
+  "a coach's eye.",
+  "analytical precision.",
+  "clarity.",
+  "care.",
+];
 
 function useRotatingText(words: string[], intervalMs = 3000) {
   const [index, setIndex] = useState(0);
   useEffect(() => {
-    const timer = setInterval(() => setIndex((i) => (i + 1) % words.length), intervalMs);
+    const timer = setInterval(
+      () => setIndex(i => (i + 1) % words.length),
+      intervalMs,
+    );
     return () => clearInterval(timer);
   }, [words.length, intervalMs]);
   return words[index];
@@ -27,7 +40,12 @@ function useRotatingText(words: string[], intervalMs = 3000) {
 
 const floatingCards = [
   { icon: BarChart3, label: "ATS Score · 92", color: "text-primary", delay: 0 },
-  { icon: CheckCircle2, label: "Strong Keywords", color: "text-chart-3", delay: 0.8 },
+  {
+    icon: CheckCircle2,
+    label: "Strong Keywords",
+    color: "text-chart-3",
+    delay: 0.8,
+  },
   { icon: Globe, label: "Portfolio Ready", color: "text-chart-2", delay: 1.6 },
   { icon: TrendingUp, label: "Top 15%", color: "text-chart-4", delay: 2.4 },
 ];
@@ -63,7 +81,7 @@ function AnimatedCounter({ value, suffix }: { value: number; suffix: string }) {
           }, duration / steps);
         }
       },
-      { threshold: 0.5 }
+      { threshold: 0.5 },
     );
     if (ref.current) observer.observe(ref.current);
     return () => observer.disconnect();
@@ -95,7 +113,7 @@ export default function Hero() {
       mouseX.set(clientX / innerWidth);
       mouseY.set(clientY / innerHeight);
     },
-    [mouseX, mouseY]
+    [mouseX, mouseY],
   );
 
   const stagger = {
@@ -105,14 +123,17 @@ export default function Hero() {
 
   const fadeUp = {
     hidden: { opacity: 0, y: 30 },
-    visible: { opacity: 1, y: 0, transition: { duration: 0.6, ease: [0.25, 0.46, 0.45, 0.94] } },
+    visible: {
+      opacity: 1,
+      y: 0,
+      transition: { duration: 0.6, ease: [0.25, 0.46, 0.45, 0.94] },
+    },
   };
 
   return (
     <section
       className="relative min-h-[92vh] flex items-center justify-center overflow-hidden py-24 px-6 bg-studio-paper"
-      onMouseMove={handleMouseMove}
-    >
+      onMouseMove={handleMouseMove}>
       {/* Soft warm wash — calm, editorial */}
       <div className="absolute inset-0 pointer-events-none overflow-hidden">
         <motion.div
@@ -123,7 +144,10 @@ export default function Hero() {
         />
         <motion.div
           className="absolute -bottom-56 -right-40 w-[620px] h-[620px] rounded-full bg-chart-2/6 blur-[140px]"
-          style={{ x: useTransform(orbX, (v) => -v), y: useTransform(orbY, (v) => -v) }}
+          style={{
+            x: useTransform(orbX, v => -v),
+            y: useTransform(orbY, v => -v),
+          }}
           animate={{ opacity: [0.3, 0.5, 0.3] }}
           transition={{ duration: 12, repeat: Infinity, ease: "easeInOut" }}
         />
@@ -142,8 +166,7 @@ export default function Hero() {
         className="relative max-w-7xl mx-auto w-full z-10"
         variants={stagger}
         initial="hidden"
-        animate="visible"
-      >
+        animate="visible">
         <div className="grid lg:grid-cols-2 gap-16 items-center">
           {/* Left content */}
           <div className="space-y-8">
@@ -151,10 +174,11 @@ export default function Hero() {
               <motion.div
                 className="inline-flex items-center gap-2 px-3 py-1.5 bg-card border border-border rounded-full"
                 whileHover={{ scale: 1.03 }}
-                whileTap={{ scale: 0.98 }}
-              >
+                whileTap={{ scale: 0.98 }}>
                 <Sparkles className="w-3.5 h-3.5 text-primary" />
-                <span className="text-[11px] uppercase tracking-[0.14em] font-medium text-foreground/70" data-testid="text-hero-badge">
+                <span
+                  className="text-[11px] uppercase tracking-[0.14em] font-medium text-foreground/70"
+                  data-testid="text-hero-badge">
                   The Resume · Studio Edition
                 </span>
                 <span className="relative flex h-1.5 w-1.5">
@@ -172,8 +196,7 @@ export default function Hero() {
                 letterSpacing: "-0.02em",
               }}
               data-testid="text-hero-heading"
-              variants={fadeUp}
-            >
+              variants={fadeUp}>
               Your resume,
               <br />
               read with{" "}
@@ -186,8 +209,7 @@ export default function Hero() {
                     initial={{ opacity: 0, y: 6 }}
                     animate={{ opacity: 1, y: 0 }}
                     exit={{ opacity: 0, y: -6 }}
-                    transition={{ duration: 0.4, ease: "easeInOut" }}
-                  >
+                    transition={{ duration: 0.4, ease: "easeInOut" }}>
                     {currentWord}
                   </motion.span>
                 </AnimatePresence>
@@ -204,10 +226,9 @@ export default function Hero() {
               className="text-lg lg:text-xl text-muted-foreground max-w-xl"
               style={{ lineHeight: 1.55 }}
               data-testid="text-hero-subheading"
-              variants={fadeUp}
-            >
-              A careful, line-by-line review — then a portfolio that reads like it
-              was written for you. Not a template with your name dropped in.
+              variants={fadeUp}>
+              A careful, line-by-line review — then a portfolio that reads like
+              it was written for you. Not a template with your name dropped in.
             </motion.p>
 
             <motion.div className="flex flex-wrap gap-3 pt-2" variants={fadeUp}>
@@ -219,27 +240,26 @@ export default function Hero() {
                 whileTap={{ scale: 0.98 }}
                 whileHover={{ y: -1 }}
                 className="group inline-flex items-center justify-center gap-2 rounded-full bg-primary hover:bg-primary/90 text-primary-foreground px-7 h-12 text-[15px] font-medium shadow-brand-sm hover:shadow-brand-md transition-all duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-primary"
-                data-testid="button-analyze-resume"
-              >
+                data-testid="button-analyze-resume">
                 <Upload className="w-4 h-4" />
                 <span>Analyze my resume</span>
                 <motion.span
                   animate={{ x: isHoveringCta ? 4 : 0 }}
                   transition={{ type: "spring", stiffness: 300 }}
-                  className="inline-flex"
-                >
+                  className="inline-flex">
                   <ArrowRight className="w-4 h-4" />
                 </motion.span>
               </motion.button>
               <motion.button
                 type="button"
                 onClick={() => {
-                  document.getElementById("how-it-works")?.scrollIntoView({ behavior: "smooth" });
+                  document
+                    .getElementById("how-it-works")
+                    ?.scrollIntoView({ behavior: "smooth" });
                 }}
                 whileTap={{ scale: 0.98 }}
                 whileHover={{ y: -1 }}
-                className="inline-flex items-center justify-center gap-2 rounded-full bg-transparent hover:bg-card text-foreground px-7 h-12 text-[15px] font-medium border border-foreground/20 transition-all duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-primary"
-              >
+                className="inline-flex items-center justify-center gap-2 rounded-full bg-transparent hover:bg-card text-foreground px-7 h-12 text-[15px] font-medium border border-foreground/20 transition-all duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-primary">
                 <Zap className="w-4 h-4" />
                 <span>See how it works</span>
               </motion.button>
@@ -247,8 +267,7 @@ export default function Hero() {
 
             <motion.div
               className="flex flex-wrap items-center gap-x-5 gap-y-2 pt-1 text-[13px] text-muted-foreground"
-              variants={fadeUp}
-            >
+              variants={fadeUp}>
               {[
                 { icon: Shield, text: "Private by default" },
                 { icon: Zap, text: "Free analysis" },
@@ -257,13 +276,15 @@ export default function Hero() {
                 <div key={text} className="inline-flex items-center gap-2">
                   <Icon className="w-3.5 h-3.5 text-primary" />
                   <span>{text}</span>
-                  {idx < arr.length - 1 && <span className="text-foreground/20">·</span>}
+                  {idx < arr.length - 1 && (
+                    <span className="text-foreground/20">·</span>
+                  )}
                 </div>
               ))}
             </motion.div>
 
             {/* Stats row — editorial rule */}
-            <motion.div
+            {/* <motion.div
               className="grid grid-cols-3 gap-x-8 sm:gap-x-12 lg:gap-x-16 pt-8 mt-2 border-t border-foreground/15"
               variants={fadeUp}
             >
@@ -275,22 +296,20 @@ export default function Hero() {
                   <div className="text-[12px] uppercase tracking-[0.14em] text-muted-foreground mt-3">{stat.label}</div>
                 </div>
               ))}
-            </motion.div>
+            </motion.div> */}
           </div>
 
           {/* Right interactive area */}
           <motion.div
             className="relative hidden lg:flex items-center justify-center px-12 py-8"
-            variants={fadeUp}
-          >
+            variants={fadeUp}>
             {/* Main card */}
             <motion.div
               className="relative w-full max-w-md"
               initial={{ rotateY: -8, rotateX: 5 }}
               animate={{ rotateY: 0, rotateX: 0 }}
               transition={{ duration: 1, delay: 0.5, ease: "easeOut" }}
-              style={{ perspective: 1000 }}
-            >
+              style={{ perspective: 1000 }}>
               <div className="rounded-[28px] border border-foreground/15 bg-card p-7 shadow-brand-md">
                 {/* Editorial header — file + live */}
                 <div className="flex items-center gap-3 mb-7 pb-5 border-b border-foreground/10">
@@ -298,14 +317,17 @@ export default function Hero() {
                     <FileText className="w-5 h-5 text-primary" />
                   </div>
                   <div className="flex-1 min-w-0">
-                    <div className="font-serif text-lg leading-tight text-foreground">Resume, reviewed</div>
-                    <div className="text-[12px] text-muted-foreground mt-0.5 font-mono">john_doe_resume.pdf</div>
+                    <div className="font-serif text-lg leading-tight text-foreground">
+                      Resume, reviewed
+                    </div>
+                    <div className="text-[12px] text-muted-foreground mt-0.5 font-mono">
+                      john_doe_resume.pdf
+                    </div>
                   </div>
                   <motion.div
                     className="px-2.5 py-1 rounded-full border border-primary/30 text-primary text-[10px] uppercase tracking-[0.14em] font-medium"
                     animate={{ opacity: [0.7, 1, 0.7] }}
-                    transition={{ duration: 2, repeat: Infinity }}
-                  >
+                    transition={{ duration: 2, repeat: Infinity }}>
                     Live
                   </motion.div>
                 </div>
@@ -313,13 +335,19 @@ export default function Hero() {
                 {/* Overall score — oversized serif numeral */}
                 <div className="flex items-end justify-between mb-7">
                   <div>
-                    <div className="text-[11px] uppercase tracking-[0.14em] text-muted-foreground">Overall</div>
+                    <div className="text-[11px] uppercase tracking-[0.14em] text-muted-foreground">
+                      Overall
+                    </div>
                     <div className="font-serif text-[64px] leading-none text-foreground mt-1">
-                      92<span className="text-muted-foreground text-2xl align-top ml-1">/100</span>
+                      92
+                      <span className="text-muted-foreground text-2xl align-top ml-1">
+                        /100
+                      </span>
                     </div>
                   </div>
                   <div className="text-right text-[12px] text-muted-foreground leading-tight max-w-[44%]">
-                    Strong on impact &amp; structure.<br />
+                    Strong on impact &amp; structure.
+                    <br />
                     <span className="italic">A few keywords to tighten.</span>
                   </div>
                 </div>
@@ -333,15 +361,23 @@ export default function Hero() {
                   ].map((skill, i) => (
                     <div key={skill.label}>
                       <div className="flex justify-between text-[12px] mb-1.5">
-                        <span className="text-foreground/75">{skill.label}</span>
-                        <span className="font-mono text-foreground">{skill.score}</span>
+                        <span className="text-foreground/75">
+                          {skill.label}
+                        </span>
+                        <span className="font-mono text-foreground">
+                          {skill.score}
+                        </span>
                       </div>
                       <div className="h-[3px] bg-foreground/10 overflow-hidden rounded-full">
                         <motion.div
                           className="h-full bg-primary rounded-full"
                           initial={{ width: "0%" }}
                           animate={{ width: `${skill.score}%` }}
-                          transition={{ delay: 0.6 + i * 0.15, duration: 0.8, ease: "easeOut" }}
+                          transition={{
+                            delay: 0.6 + i * 0.15,
+                            duration: 0.8,
+                            ease: "easeOut",
+                          }}
                         />
                       </div>
                     </div>
@@ -359,8 +395,7 @@ export default function Hero() {
                       className="flex items-start gap-2.5 text-[13px] text-foreground/80 pl-3 border-l-2 border-primary/40"
                       initial={{ opacity: 0, x: -10 }}
                       animate={{ opacity: 1, x: 0 }}
-                      transition={{ delay: 1.4 + i * 0.2 }}
-                    >
+                      transition={{ delay: 1.4 + i * 0.2 }}>
                       <span className="italic font-serif">{tip}</span>
                     </motion.div>
                   ))}
@@ -398,8 +433,7 @@ export default function Hero() {
                       ease: "easeInOut",
                     },
                   }}
-                  whileHover={{ scale: 1.1, zIndex: 20 }}
-                >
+                  whileHover={{ scale: 1.1, zIndex: 20 }}>
                   <card.icon className={`w-4 h-4 ${card.color}`} />
                   <span>{card.label}</span>
                 </motion.div>
